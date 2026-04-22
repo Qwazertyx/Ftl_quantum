@@ -2,6 +2,17 @@
 python3 -m venv venv
 source venv/bin/activate  # On Windows use: venv\Scripts\activate
 
+pip install -r requirements.txt
+
+
 pip install qiskit
 pip install matplotlib
 pip install qiskit[visualization]
+
+pip install qiskit
+pip install qiskit-aer
+pip install qiskit-ibm-runtime
+pip install matplotlib
+pip install numpy
+pip install python-dotenv
+
