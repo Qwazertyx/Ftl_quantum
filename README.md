@@ -1,374 +1,388 @@
-## Table des matières
+# Quantum Computing — Course & Reference
 
-1. [Introduction à l'informatique quantique](#1-introduction-à-linformatique-quantique)
-2. [Le qubit](#2-le-qubit)
-   - [Bit vs qubit](#21-bit-vs-qubit)
-   - [La superposition](#22-la-superposition)
-   - [La mesure et l'effondrement](#23-la-mesure-et-leffondrement)
-   - [La sphère de Bloch](#24-la-sphère-de-bloch)
+> Study guide for the **ftl_quantum** project — 42 Lyon  
+> This document covers the theoretical foundations and algorithms implemented in the exercises.
+
+---
+
+## Table of Contents
+
+1. [Introduction to Quantum Computing](#1-introduction-to-quantum-computing)
+2. [The Qubit](#2-the-qubit)
+   - [Bit vs Qubit](#21-bit-vs-qubit)
+   - [Superposition](#22-superposition)
+   - [Measurement and State Collapse](#23-measurement-and-state-collapse)
+   - [The Bloch Sphere](#24-the-bloch-sphere)
 3. [Notations](#3-notations)
-   - [Notation bra-ket (Dirac)](#31-notation-bra-ket-dirac)
-   - [Représentation vectorielle et matricielle](#32-représentation-vectorielle-et-matricielle)
-   - [Systèmes multi-qubits](#33-systèmes-multi-qubits)
-4. [Portes quantiques](#4-portes-quantiques)
-   - [Propriétés générales](#41-propriétés-générales)
-   - [Portes de Pauli (X, Y, Z)](#42-portes-de-pauli-x-y-z)
-   - [Porte Hadamard (H)](#43-porte-hadamard-h)
-   - [Portes de phase (S, T)](#44-portes-de-phase-s-t)
-   - [Porte CNOT](#45-porte-cnot)
-   - [Porte Toffoli (CCX)](#46-porte-toffoli-ccx)
-   - [Porte Multi-Controlled X (MCX)](#47-porte-multi-controlled-x-mcx)
-5. [L'intrication quantique](#5-lintrication-quantique)
-6. [Algorithmes quantiques](#6-algorithmes-quantiques)
+   - [Bra-Ket Notation](#31-bra-ket-dirac-notation)
+   - [Vector and Matrix Representation](#32-vector-and-matrix-representation)
+   - [Multi-Qubit Systems](#33-multi-qubit-systems)
+4. [Quantum Gates](#4-quantum-gates)
+   - [General Properties](#41-general-properties)
+   - [Pauli Gates (X, Y, Z)](#42-pauli-gates-x-y-z)
+   - [Hadamard Gate (H)](#43-hadamard-gate-h)
+   - [Phase Gates (S, T)](#44-phase-gates-s-t)
+   - [CNOT Gate](#45-cnot-gate)
+   - [Toffoli Gate (CCX)](#46-toffoli-gate-ccx)
+   - [Multi-Controlled X Gate (MCX)](#47-multi-controlled-x-gate-mcx)
+5. [Quantum Entanglement](#5-quantum-entanglement)
+6. [Quantum Algorithms](#6-quantum-algorithms)
    - [Deutsch-Jozsa](#61-deutsch-jozsa)
-   - [Algorithme de Grover](#62-algorithme-de-grover)
-7. [Exercices — référence code](#7-exercices--référence-code)
+   - [Grover's Search Algorithm](#62-grovers-search-algorithm)
+7. [Exercises — Code Reference](#7-exercises--code-reference)
    - [Ex00 — Superposition](#ex00--superposition)
-   - [Ex01 — Intrication](#ex01--intrication)
-   - [Ex02 — Bruit quantique (IBM)](#ex02--bruit-quantique-ibm)
+   - [Ex01 — Entanglement](#ex01--entanglement)
+   - [Ex02 — Quantum Noise (IBM)](#ex02--quantum-noise-ibm)
    - [Ex03 — Deutsch-Jozsa](#ex03--deutsch-jozsa)
-   - [Ex04 — Algorithme de Grover](#ex04--algorithme-de-grover)
-8. [Glossaire](#8-glossaire)
-9. [Références](#9-références)
+   - [Ex04 — Grover's Algorithm](#ex04--grovers-algorithm)
+8. [Glossary](#8-glossary)
+9. [References](#9-references)
 
 ---
 
-## 1. Introduction à l'informatique quantique
+## 1. Introduction to Quantum Computing
 
-L'informatique classique repose sur des **bits** : des interrupteurs qui valent soit 0, soit 1. Toute l'information numérique — images, vidéos, programmes — est encodée dans des séquences de ces deux états.
+Classical computing is built on **bits**: switches that are either 0 or 1. All digital information is encoded as sequences of these two states.
 
-L'informatique quantique utilise une autre unité d'information : le **qubit**. Un qubit peut lui aussi valoir 0 ou 1, mais avant d'être mesuré, il peut exister dans une **combinaison des deux** — c'est la *superposition*. De plus, deux qubits peuvent être **intriqués**, c'est-à-dire corrélés d'une manière qu'aucune physique classique ne peut reproduire.
+Quantum computing uses a different unit of information: the **qubit**. A qubit can also be 0 or 1, but before being measured, it can exist in a **combination of both** — this is called *superposition*. Additionally, two qubits can be **entangled**, meaning they are correlated in a way that no classical physics can reproduce.
 
-Ce ne sont pas de simples curiosités. Ces propriétés permettent à certains algorithmes quantiques de résoudre des problèmes que les ordinateurs classiques ne peuvent pas traiter en temps raisonnable.
+These are not just curiosities. These properties allow certain quantum algorithms to solve problems that classical computers cannot handle in a reasonable amount of time.
 
-**Quelques exemples concrets :**
-- Factorisation de grands nombres : classiquement exponentiel, quantiquement polynomial (algorithme de Shor).
-- Recherche dans une base non triée : classiquement O(N), quantiquement O(√N) (algorithme de Grover).
-- Simulation de molécules et de matériaux pour la chimie ou la pharmacologie.
+**A few concrete examples:**
+- Factoring large numbers: classically exponential, quantumly polynomial (Shor's algorithm).
+- Searching an unsorted database: classically O(N), quantumly O(sqrt(N)) (Grover's algorithm).
+- Simulating molecules and materials for chemistry or pharmacology.
 
-> **Important :** les ordinateurs quantiques ne remplacent pas les ordinateurs classiques. Ils sont utiles pour une famille spécifique de problèmes où la structure mathématique permet d'exploiter la superposition et l'intrication.
+> **Important:** quantum computers do not replace classical computers. They are useful for a specific family of problems where the mathematical structure allows superposition and entanglement to be exploited.
 
 ---
 
-## 2. Le qubit
+## 2. The Qubit
 
-### 2.1 Bit vs qubit
+### 2.1 Bit vs Qubit
 
-| Propriété | Bit classique | Qubit |
+| Property | Classical Bit | Qubit |
 |---|---|---|
-| États possibles | 0 ou 1 | 0, 1, ou superposition |
-| Avant mesure | Déterministe | Probabiliste |
-| Après mesure | Inchangé | Effondrement irréversible |
-| Corrélation | Indépendant | Peut être intriqué |
+| Possible states | 0 or 1 | 0, 1, or superposition |
+| Before measurement | Deterministic | Probabilistic |
+| After measurement | Unchanged | Irreversible collapse |
+| Correlation | Independent | Can be entangled |
 
-Un bit classique est comme un interrupteur : il est soit éteint (0), soit allumé (1). Un qubit, avant mesure, est comme une pièce qui tourne en l'air — il n'est ni pile ni face, il est *les deux en même temps*, avec des probabilités associées.
+A classical bit is like a light switch: either off (0) or on (1). A qubit, before measurement, is like a coin spinning in the air — it is neither heads nor tails, it is *both at the same time*, with associated probabilities.
 
-### 2.2 La superposition
+### 2.2 Superposition
 
-La superposition est l'état dans lequel un qubit se trouve **avant** toute mesure. Ce n'est pas de l'ignorance — le qubit n'a vraiment pas encore de valeur définie. C'est un état physique à part entière.
+Superposition is the state a qubit is in **before** any measurement. It is not ignorance — the qubit truly does not have a defined value yet. It is a physical state in its own right.
 
-Mathématiquement, un qubit en superposition s'écrit :
-
-```
-|ψ⟩ = α|0⟩ + β|1⟩
-```
-
-où α et β sont des **amplitudes complexes** vérifiant :
+Mathematically, a qubit in superposition is written:
 
 ```
-|α|² + |β|² = 1
+|psi> = alpha|0> + beta|1>
 ```
 
-La probabilité d'obtenir 0 lors d'une mesure est **|α|²**, et la probabilité d'obtenir 1 est **|β|²**.
-
-L'état de superposition le plus courant (50/50) est :
+where alpha and beta are **complex amplitudes** satisfying:
 
 ```
-|ψ⟩ = (1/√2)|0⟩ + (1/√2)|1⟩
+|alpha|^2 + |beta|^2 = 1
 ```
 
-Ce qui donne 50% de chance d'obtenir 0 et 50% d'obtenir 1 — c'est exactement ce que produit la porte Hadamard.
+The probability of getting 0 upon measurement is **|alpha|^2**, and the probability of getting 1 is **|beta|^2**.
 
-<!-- IMAGE: Représentation graphique d'une superposition — deux colonnes de probabilités égales (|0⟩ et |1⟩ à 50% chacun) -->
-
-### 2.3 La mesure et l'effondrement
-
-La mesure est un **processus actif et irréversible**. Quand on mesure un qubit en superposition, son état s'effondre sur l'une des valeurs classiques (0 ou 1) selon les probabilités dictées par ses amplitudes.
-
-Analogie : imaginez un distributeur automatique dont vous ne savez pas ce qu'il contient. Avant d'appuyer, il pourrait sortir n'importe quel article (superposition). Dès que vous appuyez (mesure), il sort un seul article et ne peut plus jamais sortir les autres. L'acte de choisir a forcé le système à se définir.
-
-**Conséquences pratiques :**
-- On ne peut pas "lire" un état quantique directement sans le détruire.
-- Pour connaître les probabilités, on doit répéter l'expérience de nombreuses fois.
-- Chaque répétition s'appelle un **shot**.
+The most common 50/50 superposition state is:
 
 ```
-500 shots → ~250 fois "0", ~250 fois "1" pour un état (|0⟩+|1⟩)/√2
+|psi> = (1/sqrt(2))|0> + (1/sqrt(2))|1>
 ```
 
-Le nombre de shots détermine la précision statistique. 1000 shots donnent une meilleure image des probabilités que 10 shots.
+This gives 50% chance of measuring 0 and 50% of measuring 1 — this is exactly what the Hadamard gate produces.
 
-### 2.4 La sphère de Bloch
+<p align="center">
+  <img src="srcs/imgs/Superposition%20probatility%20bars%20(ex00).png" alt="Superposition — equal probability of measuring 0 or 1 over 500 shots" width="480"/>
+</p>
 
-Tout état pur d'un qubit peut être visualisé comme un **point sur une sphère unitaire** — la sphère de Bloch.
+### 2.3 Measurement and State Collapse
+
+Measurement is an **active and irreversible process**. When a qubit in superposition is measured, its state collapses to one of the classical values (0 or 1) according to the probabilities dictated by its amplitudes.
+
+Analogy: imagine a vending machine whose contents you don't know. Before pressing a button, it could dispense anything (superposition). The moment you press (measurement), it dispenses one item and can never dispense the others. The act of choosing forced the system to define itself.
+
+**Practical consequences:**
+- You cannot "read" a quantum state directly without destroying it.
+- To know the probabilities, you must repeat the experiment many times.
+- Each repetition is called a **shot**.
 
 ```
-|ψ⟩ = cos(θ/2)|0⟩ + e^(iφ) sin(θ/2)|1⟩
+500 shots on (|0> + |1>) / sqrt(2)  →  ~250 times "0",  ~250 times "1"
 ```
 
-- Le **pôle nord** représente |0⟩
-- Le **pôle sud** représente |1⟩
-- L'**équateur** représente toutes les superpositions 50/50
-- La **longitude** (angle φ) encode la phase complexe
+### 2.4 The Bloch Sphere
 
-Les portes quantiques sont des **rotations** de ce vecteur sur la sphère :
-- Pauli X : rotation de 180° autour de l'axe X
-- Pauli Y : rotation de 180° autour de l'axe Y
-- Pauli Z : rotation de 180° autour de l'axe Z
-- Hadamard : rotation de 180° autour de l'axe X+Z (diagonale)
+Any pure state of a qubit can be visualised as a **point on a unit sphere** — the Bloch sphere.
 
-<!-- IMAGE: Sphère de Bloch avec pôles |0⟩ et |1⟩, axes X Y Z, et un vecteur d'état en position quelconque -->
+```
+|psi> = cos(theta/2)|0> + e^(i*phi) sin(theta/2)|1>
+```
+
+- The **north pole** represents |0⟩
+- The **south pole** represents |1⟩
+- The **equator** represents all 50/50 superpositions
+- The **longitude** (angle phi) encodes the complex phase
+
+Quantum gates are **rotations** of this vector on the sphere:
+- Pauli X: 180° rotation around the X axis
+- Pauli Y: 180° rotation around the Y axis
+- Pauli Z: 180° rotation around the Z axis
+- Hadamard: 180° rotation around the diagonal X+Z axis
+
+<p align="center">
+  <img src="srcs/imgs/real-Bloch-sphere-points.avif" alt="Bloch sphere with labelled axes and state vector" width="370"/>
+  &nbsp;&nbsp;&nbsp;
+  <img src="srcs/imgs/six-Bloch-sphere-points.avif" alt="Bloch sphere showing the six cardinal states" width="370"/>
+</p>
 
 ---
 
 ## 3. Notations
 
-### 3.1 Notation bra-ket (Dirac)
+### 3.1 Bra-Ket (Dirac) Notation
 
-La notation bra-ket est le langage standard de la mécanique quantique. Elle permet d'écrire des états et des produits scalaires de manière compacte.
+Bra-ket notation is the standard language of quantum mechanics. It allows states and inner products to be written compactly.
 
-**Ket** `|ψ⟩` — représente un état quantique (vecteur colonne) :
+**Ket** `|psi>` — represents a quantum state (column vector):
 ```
-|0⟩ = [1]    |1⟩ = [0]
+|0> = [1]    |1> = [0]
       [0]          [1]
 ```
 
-**Bra** `⟨ψ|` — représente le conjugué transposé du ket (vecteur ligne) :
+**Bra** `<psi|` — represents the conjugate transpose of the ket (row vector):
 ```
-⟨0| = [1, 0]    ⟨1| = [0, 1]
-```
-
-**Produit scalaire** `⟨φ|ψ⟩` — amplitude de probabilité de trouver |ψ⟩ dans l'état |φ⟩ :
-```
-⟨0|0⟩ = 1    ⟨1|1⟩ = 1    ⟨0|1⟩ = 0    ⟨1|0⟩ = 0
+<0| = [1, 0]    <1| = [0, 1]
 ```
 
-Les états |0⟩ et |1⟩ sont **orthonormaux** : ils sont perpendiculaires et de norme 1.
+**Inner product** `<phi|psi>` — probability amplitude of finding |psi⟩ in state |phi⟩:
+```
+<0|0> = 1    <1|1> = 1    <0|1> = 0    <1|0> = 0
+```
 
-**États courants en notation bra-ket :**
+The states |0⟩ and |1⟩ are **orthonormal**: perpendicular and of unit norm.
 
-| Notation | Description | Vecteur |
+**Common states:**
+
+| Notation | Description | Vector |
 |---|---|---|
-| `\|0⟩` | État de base "zéro" | [1, 0]ᵀ |
-| `\|1⟩` | État de base "un" | [0, 1]ᵀ |
-| `\|+⟩` | Superposition (+) = H\|0⟩ | [1/√2, 1/√2]ᵀ |
-| `\|-⟩` | Superposition (-) = H\|1⟩ | [1/√2, -1/√2]ᵀ |
+| `\|0⟩` | Base state "zero" | [1, 0]^T |
+| `\|1⟩` | Base state "one" | [0, 1]^T |
+| `\|+⟩` | (+) superposition = H\|0⟩ | [1/sqrt(2), 1/sqrt(2)]^T |
+| `\|−⟩` | (−) superposition = H\|1⟩ | [1/sqrt(2), −1/sqrt(2)]^T |
 
-### 3.2 Représentation vectorielle et matricielle
+### 3.2 Vector and Matrix Representation
 
-Un qubit est un **vecteur dans un espace de Hilbert** de dimension 2. Une porte quantique à 1 qubit est une **matrice unitaire 2×2** (telle que U†U = I).
+A qubit is a **vector in a 2-dimensional Hilbert space**. A single-qubit quantum gate is a **unitary 2×2 matrix** (such that U†U = I).
 
-L'application d'une porte U à un état |ψ⟩ est une **multiplication matricielle** :
+Applying a gate U to a state |psi⟩ is a **matrix multiplication**:
 
 ```
-|ψ'⟩ = U|ψ⟩
+|psi'> = U|psi>
 ```
 
-Exemple avec la porte X appliquée à |0⟩ :
+Example — gate X applied to |0⟩:
 ```
-X|0⟩ = [0 1] × [1] = [0] = |1⟩  ✓
+X|0> = [0 1] x [1] = [0] = |1>
        [1 0]   [0]   [1]
 ```
 
-La condition d'**unitarité** (U†U = I) garantit deux choses fondamentales :
-1. La norme est préservée (les probabilités somment toujours à 1).
-2. L'opération est **réversible** — on peut toujours reconstruire l'entrée depuis la sortie.
+The **unitarity** condition (U†U = I) guarantees:
+1. The norm is preserved (probabilities always sum to 1).
+2. The operation is **reversible** — the input can always be reconstructed from the output.
 
-### 3.3 Systèmes multi-qubits
+### 3.3 Multi-Qubit Systems
 
-Pour décrire un système de n qubits, on utilise le **produit tensoriel** ⊗.
+To describe a system of n qubits, the **tensor product** ⊗ is used.
 
-L'espace d'état de 2 qubits est de dimension 4 :
+The state space of 2 qubits has dimension 4:
 
 ```
-Base : |00⟩, |01⟩, |10⟩, |11⟩
+Basis: |00>, |01>, |10>, |11>
 
-|00⟩ = |0⟩ ⊗ |0⟩ = [1, 0, 0, 0]ᵀ
-|01⟩ = |0⟩ ⊗ |1⟩ = [0, 1, 0, 0]ᵀ
-|10⟩ = |1⟩ ⊗ |0⟩ = [0, 0, 1, 0]ᵀ
-|11⟩ = |1⟩ ⊗ |1⟩ = [0, 0, 0, 1]ᵀ
+|00> = |0> x |0> = [1, 0, 0, 0]^T
+|01> = |0> x |1> = [0, 1, 0, 0]^T
+|10> = |1> x |0> = [0, 0, 1, 0]^T
+|11> = |1> x |1> = [0, 0, 0, 1]^T
 ```
 
-> **Convention Qiskit :** le qubit d'indice le plus bas (qubit 0) correspond au bit le plus à droite dans la notation. Ainsi `|01⟩` signifie qubit 1 = 0, qubit 0 = 1.
+> **Qiskit convention:** the lowest-index qubit (qubit 0) corresponds to the rightmost bit in the notation. So `|01⟩` means qubit 1 = 0, qubit 0 = 1.
 
-Un système de n qubits peut exister en superposition de **2ⁿ états simultanément**. C'est la source de la puissance exponentielle de l'informatique quantique : 50 qubits représentent 2⁵⁰ ≈ 10¹⁵ états en même temps.
+A system of n qubits can exist in superposition of **2^n states simultaneously**. This is the source of quantum computing's exponential power: 50 qubits represent 2^50 ≈ 10^15 states at once.
 
 ---
 
-## 4. Portes quantiques
+## 4. Quantum Gates
 
-### 4.1 Propriétés générales
+### 4.1 General Properties
 
-Toutes les portes quantiques respectent deux propriétés essentielles :
+All quantum gates satisfy two essential properties:
 
-1. **Unitarité** : `U†U = I` — la porte est réversible et préserve les probabilités.
-2. **Linéarité** : `U(α|0⟩ + β|1⟩) = αU|0⟩ + βU|1⟩`
+1. **Unitarity**: `U†U = I` — the gate is reversible and preserves probabilities.
+2. **Linearity**: `U(alpha|0> + beta|1>) = alpha*U|0> + beta*U|1>`
 
-Contrairement aux portes logiques classiques (NAND, OR...), une porte quantique ne peut **jamais perdre d'information**. Connaître la sortie suffit à retrouver l'entrée.
+Unlike classical logic gates (NAND, OR...), a quantum gate can **never lose information**. Knowing the output is sufficient to recover the input.
 
-### 4.2 Portes de Pauli (X, Y, Z)
+### 4.2 Pauli Gates (X, Y, Z)
 
-Les trois portes de Pauli correspondent à des rotations de **180°** autour des trois axes de la sphère de Bloch.
+The three Pauli gates correspond to **180° rotations** around the three axes of the Bloch sphere.
 
 ---
 
-#### Porte Pauli-X (NOT quantique)
+#### Pauli-X Gate (Quantum NOT)
 
-La porte X est l'équivalent quantique du NOT. Elle échange |0⟩ et |1⟩.
+The X gate is the quantum equivalent of NOT. It swaps |0⟩ and |1⟩.
 
-**Matrice :**
+**Matrix:**
 ```
 X = [0  1]
     [1  0]
 ```
 
-**Action :**
+**Action:**
 ```
-X|0⟩ = |1⟩
-X|1⟩ = |0⟩
-X(α|0⟩ + β|1⟩) = α|1⟩ + β|0⟩
+X|0> = |1>
+X|1> = |0>
 ```
 
-**Circuit Qiskit :** `circuit.x(qubit)`
+**Qiskit:** `circuit.x(qubit)`
 
-<!-- IMAGE: Symbole de circuit de la porte X (carré avec X) et sphère de Bloch montrant la rotation 180° autour de l'axe X -->
+<p align="center">
+  <img src="srcs/imgs/pauli%20x%20gate%20bloch%20sphere.jpg" alt="Pauli-X gate — full Bloch sphere with rotation vectors" width="420"/>
+  &nbsp;&nbsp;&nbsp;
+  <img src="srcs/imgs/BlochSphere_X_01(pauli%20x%20gate%20sphere).png" alt="Pauli-X gate — rotation arc from |0⟩ to |1⟩ on the Bloch sphere" width="300"/>
+</p>
 
 ---
 
-#### Porte Pauli-Y
+#### Pauli-Y Gate
 
-La porte Y combine un flip de bit et un flip de phase, avec un facteur imaginaire.
+The Y gate combines a bit flip and a phase flip, with an imaginary factor.
 
-**Matrice :**
+**Matrix:**
 ```
 Y = [0   -i]
     [i    0]
 ```
 
-**Action :**
+**Action:**
 ```
-Y|0⟩ =  i|1⟩
-Y|1⟩ = -i|0⟩
+Y|0> =  i|1>
+Y|1> = -i|0>
 ```
 
-**Circuit Qiskit :** `circuit.y(qubit)`
+**Qiskit:** `circuit.y(qubit)`
 
-<!-- IMAGE: Symbole de circuit de la porte Y et rotation sur la sphère de Bloch autour de l'axe Y -->
+<p align="center">
+  <img src="srcs/imgs/BlochSphere_Y_01%20(pauli%20y%20gate%20sphere).png" alt="Pauli-Y gate — 180° rotation around the Y axis on the Bloch sphere" width="300"/>
+</p>
 
 ---
 
-#### Porte Pauli-Z (flip de phase)
+#### Pauli-Z Gate (Phase Flip)
 
-La porte Z ne change pas les probabilités de mesure (|0⟩ reste |0⟩ et |1⟩ reste |1⟩), mais elle inverse la **phase** de |1⟩. Cela n'est visible que si le qubit est en superposition.
+The Z gate does not change measurement probabilities, but it inverts the **phase** of |1⟩. This is only visible when the qubit is in superposition.
 
-**Matrice :**
+**Matrix:**
 ```
 Z = [1   0]
     [0  -1]
 ```
 
-**Action :**
+**Action:**
 ```
-Z|0⟩ = |0⟩
-Z|1⟩ = -|1⟩
-Z|+⟩ = |-⟩     (change le signe de la superposition)
-Z|-⟩ = |+⟩
+Z|0> =  |0>
+Z|1> = -|1>
+Z|+> =  |->    (flips the superposition sign)
+Z|-> =  |+>
 ```
 
-**Circuit Qiskit :** `circuit.z(qubit)`
+**Qiskit:** `circuit.z(qubit)`
 
-> La phase est invisible directement, mais essentielle dans les interférences et tous les algorithmes quantiques.
+> Phase is invisible to direct measurement, but essential for interference in all quantum algorithms.
 
-<!-- IMAGE: Symbole de circuit de la porte Z et rotation 180° autour de l'axe Z sur la sphère de Bloch -->
+<p align="center">
+  <img src="srcs/imgs/pauli%20z%20gate%20sphere.png" alt="Pauli-Z gate — phase flip, rotation around the Z axis" width="300"/>
+</p>
 
 ---
 
-### 4.3 Porte Hadamard (H)
+### 4.3 Hadamard Gate (H)
 
-La porte Hadamard est **la plus fondamentale** de l'informatique quantique. Elle crée la superposition à partir d'un état de base.
+The Hadamard gate is the **most fundamental gate** in quantum computing. It creates superposition from a basis state.
 
-**Matrice :**
+**Matrix:**
 ```
-H = (1/√2) × [1   1]
-              [1  -1]
-```
-
-**Action :**
-```
-H|0⟩ = (1/√2)(|0⟩ + |1⟩) = |+⟩    → superposition +
-H|1⟩ = (1/√2)(|0⟩ - |1⟩) = |-⟩    → superposition -
+H = (1/sqrt(2)) x [1   1]
+                  [1  -1]
 ```
 
-**Propriété clé :** `H × H = I` (son propre inverse)
+**Action:**
+```
+H|0> = (1/sqrt(2))(|0> + |1>) = |+>    → (+) superposition
+H|1> = (1/sqrt(2))(|0> - |1>) = |->    → (−) superposition
+```
+
+**Key property:** `H x H = I` (its own inverse)
 
 ```
-H|+⟩ = |0⟩    → retour à un état classique par interférence constructive
-H|-⟩ = |1⟩
+H|+> = |0>    → back to classical state through constructive interference
+H|-> = |1>
 ```
 
-C'est cette propriété qui est au cœur de Deutsch-Jozsa : appliquer H deux fois "annule" la superposition, sauf si l'oracle a modifié la phase entre les deux.
+This property is at the core of Deutsch-Jozsa: applying H twice undoes the superposition, unless the oracle has modified the phase in between.
 
-**Circuit Qiskit :** `circuit.h(qubit)`
+**Qiskit:** `circuit.h(qubit)`
 
-<!-- IMAGE: Symbole de circuit de la porte H, représentation géométrique sur la sphère de Bloch (rotation autour de l'axe X+Z), et schéma montrant H|0⟩ → |+⟩ → mesure 50/50 -->
+<p align="center">
+  <img src="srcs/imgs/BlochSphere_H_01%20(hadamard%20gate%20sphere).png" alt="Hadamard gate — rotation arc from |0⟩ to |+⟩ on the Bloch sphere" width="300"/>
+</p>
 
 ---
 
-### 4.4 Portes de phase (S, T)
+### 4.4 Phase Gates (S, T)
 
-Les portes de phase ajoutent une rotation partielle autour de l'axe Z sans modifier les probabilités de mesure.
+Phase gates add a partial rotation around the Z axis without changing measurement probabilities.
 
----
+#### S Gate (sqrt(Z))
 
-#### Porte S (√Z)
-
-**Matrice :**
+**Matrix:**
 ```
 S = [1   0]
     [0   i]
 ```
 
-Rotation de **90°** (π/2) autour de l'axe Z. `S² = Z`.
+**90° rotation** (pi/2) around the Z axis. `S^2 = Z`.
 
-**Circuit Qiskit :** `circuit.s(qubit)`
+**Qiskit:** `circuit.s(qubit)`
+
+#### T Gate (fourth-root of Z)
+
+**Matrix:**
+```
+T = [1            0        ]
+    [0   e^(i*pi/4)        ]
+```
+
+**45° rotation** (pi/4) around the Z axis. `T^2 = S`, `T^4 = Z`.
+
+**Qiskit:** `circuit.t(qubit)`
+
+> Together with H and CNOT, the T gate forms a universal gate set for quantum computation.
 
 ---
 
-#### Porte T (⁴√Z)
+### 4.5 CNOT Gate
 
-**Matrice :**
-```
-T = [1         0      ]
-    [0   e^(iπ/4)     ]
-```
+The CNOT (Controlled-NOT) gate acts on **two qubits**:
+- The **control qubit**: if it is |1⟩, the operation is applied.
+- The **target qubit**: receives a NOT if the control is |1⟩.
 
-Rotation de **45°** (π/4) autour de l'axe Z. `T² = S`, `T⁴ = Z`.
-
-**Circuit Qiskit :** `circuit.t(qubit)`
-
-> Les portes S et T sont importantes en cryptographie quantique et dans l'algorithme de Shor. Elles permettent aussi de construire l'universalité quantique avec H et CNOT.
-
-<!-- IMAGE: Tableau comparatif des portes Z, S, T avec les angles de rotation et les matrices -->
-
----
-
-### 4.5 Porte CNOT
-
-La porte CNOT (Controlled-NOT) agit sur **deux qubits** :
-- Le **qubit de contrôle** : si il vaut |1⟩, l'opération est appliquée.
-- Le **qubit cible** : reçoit un NOT si le contrôle est |1⟩.
-
-**Matrice (base |00⟩, |01⟩, |10⟩, |11⟩) :**
+**Matrix (basis |00⟩, |01⟩, |10⟩, |11⟩):**
 ```
 CNOT = [1  0  0  0]
        [0  1  0  0]
@@ -376,465 +390,501 @@ CNOT = [1  0  0  0]
        [0  0  1  0]
 ```
 
-**Action :**
+**Action:**
 ```
-CNOT|00⟩ = |00⟩    (contrôle=0 → rien)
-CNOT|01⟩ = |01⟩    (contrôle=0 → rien)
-CNOT|10⟩ = |11⟩    (contrôle=1 → flip cible)
-CNOT|11⟩ = |10⟩    (contrôle=1 → flip cible)
-```
-
-**Circuit Qiskit :** `circuit.cx(control, target)`
-
-**Création d'intrication :**
-```
-H|0⟩ ⊗ |0⟩ = |+⟩ ⊗ |0⟩ = (1/√2)(|00⟩ + |10⟩)
-CNOT → (1/√2)(|00⟩ + |11⟩)   ← état de Bell intriqué
+CNOT|00> = |00>    (control=0 → nothing)
+CNOT|01> = |01>    (control=0 → nothing)
+CNOT|10> = |11>    (control=1 → flip target)
+CNOT|11> = |10>    (control=1 → flip target)
 ```
 
-C'est exactement le circuit de l'exercice 01. Après le CNOT, les deux qubits sont intriqués : on ne peut plus les décrire indépendamment.
+**Qiskit:** `circuit.cx(control, target)`
 
-<!-- IMAGE: Symbole de circuit CNOT (point sur le contrôle, cercle avec plus sur la cible), puis circuit H + CNOT avec les états intermédiaires annotés -->
+**Creating entanglement step by step:**
+```
+Start      : |00>
+After H    : (1/sqrt(2))(|00> + |10>)    ← qubit 0 in superposition
+After CNOT : (1/sqrt(2))(|00> + |11>)    ← Bell state — entangled!
+```
+
+<p align="center">
+  <img src="srcs/imgs/ex01%20figure%20CNOT%20gate%20and%20Bell%20state%20creation.png" alt="H + CNOT circuit creating the Bell state" width="420"/>
+</p>
 
 ---
 
-### 4.6 Porte Toffoli (CCX)
+### 4.6 Toffoli Gate (CCX)
 
-La porte Toffoli est une porte CNOT à **deux qubits de contrôle** : le qubit cible est inversé si et seulement si les deux contrôles sont à |1⟩.
+The Toffoli gate is a CNOT with **two control qubits**: the target qubit is flipped if and only if both controls are |1⟩.
 
 ```
-Toffoli|110⟩ = |111⟩
-Toffoli|111⟩ = |110⟩
-Tous les autres états → inchangés
+Toffoli|110> = |111>
+Toffoli|111> = |110>
+All other states → unchanged
 ```
 
-**Circuit Qiskit :** `circuit.ccx(control1, control2, target)`
+**Qiskit:** `circuit.ccx(control1, control2, target)`
 
-Elle permet d'implémenter la porte NAND quantique et est donc **universelle** pour le calcul quantique réversible.
+### 4.7 Multi-Controlled X Gate (MCX)
+
+Generalisation of CNOT to **n control qubits**: the target qubit is flipped only if all controls are |1⟩.
+
+**Qiskit:** `circuit.mcx(control_list, target)`
+
+Used in Grover's oracle to identify a specific state among 2^n.
 
 ---
 
-### 4.7 Porte Multi-Controlled X (MCX)
+## 5. Quantum Entanglement
 
-Généralisation du CNOT à **n qubits de contrôle** : le qubit cible est inversé seulement si tous les contrôles sont à |1⟩.
+Entanglement is perhaps the most counter-intuitive phenomenon in quantum mechanics. Two qubits are **entangled** when their global state **cannot** be written as the product of two individual states.
 
-**Circuit Qiskit :** `circuit.mcx(control_list, target)`
+**Bell state (maximally entangled state):**
+```
+|Phi+> = (1/sqrt(2))(|00> + |11>)
+```
 
-Utilisée dans l'oracle de Grover pour identifier un état spécifique parmi 2ⁿ.
+This state is **impossible to factorise**:
+```
+(1/sqrt(2))(|00> + |11>) != (a|0> + b|1>) x (c|0> + d|1>)  for any a, b, c, d
+```
 
-<!-- IMAGE: Schéma MCX avec 3 qubits de contrôle et 1 qubit cible, montrant les points de contrôle et le cercle NOT -->
+**What this means concretely:**
+- Before measurement: the two qubits have no individually defined state.
+- Measuring qubit 0 and getting 0 → qubit 1 will be 0.
+- Measuring qubit 0 and getting 1 → qubit 1 will be 1.
+- This correlation is instantaneous, regardless of distance.
+
+> This is not that the qubits "communicate": information does not travel. It is that their shared state was non-local from the beginning.
+
+**How entanglement is created (ex01):**
+```
+Step 1: circuit.h(0)    → qubit 0 in superposition: (|0>+|1>)/sqrt(2)
+Step 2: circuit.cx(0,1) → CNOT copies the uncertainty into qubit 1
+
+Result: (1/sqrt(2))(|00> + |11>)
+```
+
+**Observed results:**
+- Only `00` and `11` appear.
+- `01` and `10` never appear.
+- Proportions ~50/50.
+
+<p align="center">
+  <img src="srcs/imgs/ex01%20entanglement%20histogram.png" alt="Entanglement histogram — only 00 and 11 appear, never 01 or 10" width="480"/>
+</p>
 
 ---
 
-## 5. L'intrication quantique
-
-L'intrication est peut-être le phénomène le plus contre-intuitif de la mécanique quantique. Deux qubits sont **intriqués** quand leur état global **ne peut pas** s'écrire comme le produit de deux états individuels.
-
-**État de Bell (état intriqué maximal) :**
-```
-|Φ+⟩ = (1/√2)(|00⟩ + |11⟩)
-```
-
-Cet état est **impossible à factoriser** :
-```
-(1/√2)(|00⟩ + |11⟩) ≠ (a|0⟩ + b|1⟩) ⊗ (c|0⟩ + d|1⟩)  pour tout a, b, c, d
-```
-
-**Ce que ça signifie concrètement :**
-- Avant mesure : les deux qubits n'ont pas d'état individuel défini.
-- En mesurant le qubit 0 et en obtenant 0 → le qubit 1 sera forcément 0.
-- En mesurant le qubit 0 et en obtenant 1 → le qubit 1 sera forcément 1.
-- Cette corrélation est instantanée, quelle que soit la distance.
-
-> Ce n'est pas que les qubits "se communiquent" : l'information ne voyage pas. C'est que leur état commun était non-local depuis le début.
-
-**Comment créer l'intrication :**
-
-```
-Étape 1 : circuit.h(0)   → qubit 0 en superposition : (|0⟩+|1⟩)/√2
-Étape 2 : circuit.cx(0, 1) → CNOT copie l'incertitude vers qubit 1
-
-Résultat : (1/√2)(|00⟩ + |11⟩)
-```
-
-**Résultats observés (ex01) :**
-- Uniquement `00` et `11`  
-- Jamais `01` ni `10`  
-- Proportions ~50/50
-
-<!-- IMAGE: Histogramme type ex01 montrant uniquement les barres 00 et 11 à 50% chacune -->
-
----
-
-## 6. Algorithmes quantiques
+## 6. Quantum Algorithms
 
 ### 6.1 Deutsch-Jozsa
 
-#### Contexte et motivation
+#### Context and motivation
 
-Le problème de Deutsch-Jozsa est le **premier algorithme prouvant l'avantage quantique**. Il n'a pas d'application pratique directe, mais il illustre parfaitement comment la superposition permet de répondre à une question globale en une seule requête là où un ordinateur classique en nécessite plusieurs.
+The Deutsch-Jozsa problem is the **first algorithm to prove quantum advantage**. It has no direct practical application, but it perfectly illustrates how superposition allows a global property to be determined in a single query where a classical computer would need many.
 
-**Le problème :** On nous donne une boîte noire (oracle) f : {0,1}ⁿ → {0,1}. Cette fonction est garantie d'être soit :
-- **Constante** : retourne toujours 0, ou toujours 1.
-- **Équilibrée** : retourne 0 exactement pour la moitié des entrées, 1 pour l'autre.
+**The problem:** We are given a black-box function f : {0,1}^n → {0,1}. This function is guaranteed to be either:
+- **Constant**: always returns 0, or always returns 1.
+- **Balanced**: returns 0 for exactly half of all inputs, 1 for the other half.
 
-**Question :** La fonction est-elle constante ou équilibrée ?
+**Question:** Is the function constant or balanced?
 
-**Coût classique :** Dans le pire cas, il faut évaluer f sur **2^(n-1) + 1 entrées** (la moitié + 1) pour être certain.
+**Classical cost:** In the worst case, f must be evaluated on **2^(n-1) + 1 inputs** (half + 1) to be certain.
 
-**Coût quantique : une seule évaluation de l'oracle** — quelle que soit la taille de l'entrée.
+**Quantum cost: a single evaluation of the oracle**, regardless of input size.
 
 ---
 
-#### Circuit de Deutsch-Jozsa
+#### The Deutsch-Jozsa Circuit
 
 ```
-Qubits d'entrée  : q0, q1, q2 (n=3)
-Qubit ancilla    : q3
+Input qubits  : q0, q1, q2  (n=3)
+Ancilla qubit : q3
 
-q0 : ─── H ─── [Oracle] ─── H ─── Mesure
-q1 : ─── H ─── [Oracle] ─── H ─── Mesure
-q2 : ─── H ─── [Oracle] ─── H ─── Mesure
-q3 : ─ X ─ H ─ [Oracle] ───────── (non mesuré)
+q0 : ─── H ─── [Oracle] ─── H ─── Measure
+q1 : ─── H ─── [Oracle] ─── H ─── Measure
+q2 : ─── H ─── [Oracle] ─── H ─── Measure
+q3 : ─ X ─ H ─ [Oracle] ───────── (not measured)
 ```
 
-<!-- IMAGE: Diagramme complet du circuit Deutsch-Jozsa avec les 4 qubits, l'initialisation X sur l'ancilla, les deux séries de H, et le bloc Oracle -->
+<p align="center">
+  <img src="srcs/imgs/ex03%20deutsch%20jozsa%20circuit.png" alt="Deutsch-Jozsa circuit — 3 input qubits + 1 ancilla" width="750"/>
+</p>
 
-**Étapes détaillées :**
+---
+
+#### Detailed Steps
 
 **1. Initialisation**
 ```
-|ψ0⟩ = |0⟩|0⟩|0⟩|0⟩
-
-Appliquer X sur ancilla → |0⟩|0⟩|0⟩|1⟩
+|psi_0> = |0>|0>|0>|0>
+Apply X on ancilla q3  →  |0>|0>|0>|1>
 ```
 
 **2. Superposition**
 ```
-Appliquer H sur tous → (1/√8)(|0⟩+|1⟩)(|0⟩+|1⟩)(|0⟩+|1⟩) ⊗ (1/√2)(|0⟩-|1⟩)
-```
-Les n qubits d'entrée sont maintenant dans une superposition uniforme de toutes les entrées possibles. L'ancilla est dans l'état `(|0⟩-|1⟩)/√2` — c'est l'astuce de l'oracle de phase.
-
-**3. Oracle quantique (boîte noire)**
-
-L'oracle réalise la transformation :
-```
-|x⟩|y⟩ → |x⟩|y ⊕ f(x)⟩
+Apply H on all qubits:
+input qubits → uniform superposition of all 2^n inputs
+ancilla      → (|0> - |1>) / sqrt(2)   ← phase kickback setup
 ```
 
-Grâce à l'ancilla dans `(|0⟩-|1⟩)/√2`, cela équivaut à :
-```
-|x⟩ → (-1)^f(x) |x⟩
-```
+**3. Quantum Oracle (black box)**
 
-L'oracle **encode f(x) dans la phase** plutôt que dans un qubit de sortie. Ce tour de passe-passe est appelé le **kick-back de phase**.
+The oracle performs the transformation `|x>|y> → |x>|y XOR f(x)>`.
 
-- Si f est **constante** : toutes les phases sont +1 (ou toutes -1) → aucune différence relative.
-- Si f est **équilibrée** : la moitié des phases sont +1, l'autre moitié -1 → interférence destructive.
-
-**4. Deuxième application de H**
+Thanks to the ancilla being in `(|0>-|1>)/sqrt(2)`, this is equivalent to a **phase kickback**:
 ```
-Appliquer H sur les n qubits d'entrée seulement
+|x> → (-1)^f(x) |x>
 ```
 
-L'interférence quantique amplifie l'état |00...0⟩ si la fonction est constante, et l'annule si elle est équilibrée.
+The oracle encodes f(x) **into the phase**, not into an output qubit.
 
-**5. Mesure**
+- f **constant**: all phases are +1 (or all −1) → no relative difference.
+- f **balanced**: half the phases are +1, half are −1 → destructive interference.
 
-| Oracle | Résultat attendu | Interprétation |
+**4. Second application of H (interference)**
+```
+Apply H on the n input qubits only
+```
+
+Quantum interference amplifies |00...0⟩ if f is constant, and cancels it if f is balanced.
+
+**5. Measurement**
+
+| Oracle | Expected result | Interpretation |
 |---|---|---|
-| Constant | `000` (tous les bits à 0) | Interférence constructive sur |0⟩ |
-| Équilibré | Autre que `000` | Interférence destructive sur |0⟩ |
+| Constant | `000` (all bits zero) | Constructive interference on |0⟩ |
+| Balanced | Anything other than `000` | Destructive interference on |0⟩ |
 
-<!-- IMAGE: Comparaison de deux histogrammes côte à côte — oracle constant (seule barre à "000") et oracle équilibré (barres réparties sur d'autres états) -->
-
----
-
-#### Oracles utilisés dans ex03
-
-**Oracle constant-0 :** Ne fait rien. f(x) = 0 pour tout x.
-
-**Oracle constant-1 :** Applique X sur l'ancilla. f(x) = 1 pour tout x.
-
-**Oracle équilibré :** CNOT depuis chaque qubit d'entrée vers l'ancilla. Cela flip l'ancilla pour exactement la moitié des entrées.
-```
-f(x) = x₀ XOR x₁ XOR x₂
-```
+<p align="center">
+  <img src="srcs/imgs/ex03%20oracle%20constant.png" alt="Deutsch-Jozsa — constant oracle: 100% of shots give 000" width="460"/>
+  &nbsp;&nbsp;&nbsp;
+  <img src="srcs/imgs/ex03%20oracle%20balanced.png" alt="Deutsch-Jozsa — balanced oracle: 100% of shots give a non-zero state" width="460"/>
+</p>
 
 ---
 
-### 6.2 Algorithme de Grover
+#### Oracles used in ex03
 
-#### Le problème de recherche
+**Constant-0 oracle:** Does nothing. f(x) = 0 for all x.
 
-On a une liste de **N = 2ⁿ éléments non triés** et on cherche un ou plusieurs éléments satisfaisant une condition donnée (l'oracle).
+**Constant-1 oracle:** Applies X on the ancilla unconditionally. f(x) = 1 for all x.
 
-- **Classique :** O(N) en moyenne — il faut en moyenne vérifier la moitié des éléments.
-- **Quantique (Grover) :** O(√N) — une accélération quadratique.
-
-Pour N = 1 000 000 : classique = 500 000 vérifications, Grover = ~785.
+**Balanced oracle:** CNOT from each input qubit to the ancilla.
+```
+f(x) = x_0 XOR x_1 XOR x_2
+```
+This flips the ancilla for exactly half of all inputs.
 
 ---
 
-#### Vue d'ensemble du circuit
+### 6.2 Grover's Search Algorithm
 
-```
-q0 : ─ H ─ [Oracle] ─ [Diffuser] ─ ... ─ Mesure
-q1 : ─ H ─ [Oracle] ─ [Diffuser] ─ ... ─ Mesure
-q2 : ─ H ─ [Oracle] ─ [Diffuser] ─ ... ─ Mesure
+#### The Search Problem
 
-      Init   Répéter ~(π/4)√(N/k) fois
-```
+We have **N = 2^n unsorted items** and want to find one or more items satisfying a given condition (the oracle).
 
-<!-- IMAGE: Circuit complet de Grover avec les 3 blocs : initialisation H, puis itération Oracle+Diffuser, puis mesure -->
+- **Classical:** O(N) on average — half the items must be checked on average.
+- **Quantum (Grover):** O(sqrt(N)) — a quadratic speedup.
 
----
-
-#### Les trois parties de l'algorithme
-
-**1. Initialisation : superposition uniforme**
-
-On applique H sur tous les qubits pour créer une superposition égale de tous les 2ⁿ états :
-
-```
-|s⟩ = H⊗ⁿ|0...0⟩ = (1/√N) Σ|x⟩   pour x ∈ {0,...,N-1}
-```
-
-Chaque état a une amplitude de 1/√N et donc une probabilité de 1/N.
-
-**2. L'Oracle : marquage par la phase**
-
-L'oracle est une boîte noire qui inverse la phase de l'état cible (ou des états cibles) :
-
-```
-Oracle|x⟩ = -|x⟩   si x est une solution
-Oracle|x⟩ =  |x⟩   sinon
-```
-
-Après l'oracle, l'amplitude de l'état cible est la seule à être négative. La distribution des probabilités est inchangée (mesurer maintenant donnerait encore 1/N pour tout état). L'information est dans la phase, pas dans l'amplitude.
-
-<!-- IMAGE: Diagramme en barres montrant les amplitudes après l'oracle — toutes positives sauf la cible qui est négative -->
-
-**3. Le Diffuser : amplification par réflexion**
-
-Le diffuser applique la transformation : **réflexion autour de la moyenne des amplitudes**.
-
-```
-D = 2|s⟩⟨s| - I = H⊗ⁿ · (2|0⟩⟨0| - I) · H⊗ⁿ
-```
-
-**Intuition géométrique :** Imaginez la moyenne des amplitudes. Après l'oracle, la cible est en dessous de la moyenne (amplitude négative). Le diffuser "reflète" chaque amplitude autour de cette moyenne → la cible se retrouve bien au-dessus.
-
-```
-Avant oracle  : toutes les amplitudes à +1/√N
-Après oracle  : cible à -1/√N, reste à +1/√N
-Après diffuser: cible très haute, reste légèrement plus bas
-```
-
-<!-- IMAGE: Trois diagrammes en barres : amplitudes initiales (uniformes), après oracle (cible négative), après diffuser (cible amplifiée) -->
-
-**Implémentation du diffuser :**
-```
-H sur tous → X sur tous → H sur dernier → MCX → H sur dernier → X sur tous → H sur tous
-```
+For N = 1,000,000: classical = 500,000 checks on average, Grover = ~785.
 
 ---
 
-#### Nombre d'itérations optimal
-
-Après k itérations Oracle + Diffuser, la probabilité de mesurer l'état cible est :
+#### Circuit Overview
 
 ```
-P(k) = sin²((2k+1)θ)    où sin(θ) = √(m/N), m = nombre de cibles
+q0 : ─ H ─ [Oracle] ─ [Diffuser] ─ ... ─ Measure
+q1 : ─ H ─ [Oracle] ─ [Diffuser] ─ ... ─ Measure
+q2 : ─ H ─ [Oracle] ─ [Diffuser] ─ ... ─ Measure
+
+      Init  ◄─── Repeat ~(pi/4)*sqrt(N/k) times ───►
 ```
 
-Le nombre optimal d'itérations est :
-
-```
-k_opt ≈ (π/4) × √(N/m)
-```
-
-Pour n=3 qubits, N=8, une cible :
-```
-k_opt ≈ (π/4) × √8 ≈ 2.2 → 2 itérations
-```
-
-<!-- IMAGE: Courbe P(k) en fonction du nombre d'itérations, montrant le premier pic au nombre optimal, puis l'oscillation -->
-
-> Trop peu d'itérations = amplitude insuffisante. Trop d'itérations = l'amplitude "dépasse" et redescend. Le nombre optimal est précis.
+<p align="center">
+  <img src="srcs/imgs/ex04%20grover%20circuit.png" alt="Grover's algorithm circuit — 3 qubits, init + Oracle+Diffuser iterations + measure" width="750"/>
+</p>
 
 ---
 
-#### Résultats attendus (ex04)
+#### The Three Parts of the Algorithm
 
-Pour n=3 qubits, cible "101", 2 itérations :
-- L'état `|101⟩` devrait apparaître dans **~97%** des mesures.
-- Les autres états ont des probabilités très faibles.
+**1. Initialisation: uniform superposition**
 
-<!-- IMAGE: Histogramme de Grover pour n=3, cible "101" — une barre dominante à ≈97%, les 7 autres presque nulles -->
+Apply H on all qubits to create an equal superposition of all 2^n states:
+
+```
+|s> = H^(xn)|0...0> = (1/sqrt(N)) * sum of all |x>   for x in {0, ..., N-1}
+```
+
+Each state has amplitude 1/sqrt(N) and therefore probability 1/N.
+
+**2. The Oracle: phase marking**
+
+The oracle inverts the phase of the target state(s):
+
+```
+Oracle|x> = -|x>   if x is a solution
+Oracle|x> =  |x>   otherwise
+```
+
+After the oracle, only the target amplitude is negative. Measuring now would still give 1/N for each state — the information is in the phase, not yet visible in probabilities.
+
+**3. The Diffuser: amplification by reflection**
+
+The diffuser applies a **reflection around the mean amplitude**:
+
+```
+D = 2|s><s| - I = H^(xn) * (2|0><0| - I) * H^(xn)
+```
+
+**Geometric intuition:** The mean of all amplitudes is slightly below 1/sqrt(N) because one state is negative. Reflecting each amplitude around this mean pushes the target well above 1/sqrt(N) and all other states slightly below.
+
+```
+Before oracle  : all amplitudes at +1/sqrt(N)
+After oracle   : target at -1/sqrt(N), others at +1/sqrt(N)
+After diffuser : target much higher, others slightly lower
+```
+
+**Implementation:**
+```
+H on all → X on all → H on last qubit → MCX → H on last qubit → X on all → H on all
+```
 
 ---
 
-## 7. Exercices — référence code
+#### Optimal Number of Iterations
+
+After k iterations of Oracle + Diffuser, the probability of measuring the target state is:
+
+```
+P(k) = sin^2((2k+1)*theta)    where sin(theta) = sqrt(m/N), m = number of targets
+```
+
+The optimal number of iterations is:
+
+```
+k_opt ≈ (pi/4) * sqrt(N/m)
+```
+
+For n=3, N=8, one target: `k_opt ≈ (pi/4) * sqrt(8) ≈ 2`
+
+> **Note on small n:** The formula is an approximation. For very small registers (e.g. n=2, N=4), the rounding can land on the wrong number of iterations and the probability actually drops back. This is visible in the n=2 histogram in the exercises section — the distribution is nearly uniform because one extra iteration overshoots the peak.
+
+---
+
+#### Expected Results
+
+For n=3 qubits, target "101", 2 iterations: state |101⟩ should appear in **~97%** of measurements.
+
+<p align="center">
+  <img src="srcs/imgs/ex%2004%203qubit%2C%20single%20target%20101.png" alt="Grover result — target state 101 dominates at ~95% of 1024 shots" width="500"/>
+</p>
+
+---
+
+## 7. Exercises — Code Reference
 
 ### Ex00 — Superposition
 
-**Objectif :** Créer l'état `(|0⟩ + |1⟩) / √2` avec un seul qubit.
+**Goal:** Create the state `(|0⟩ + |1⟩) / sqrt(2)` with a single qubit.
 
-**Circuit :**
 ```
-q0 : ─ H ─ Mesure
+Circuit:  q0 : ─ H ─ Measure
 ```
 
-**Code clé :**
+**Key code:**
 ```python
 circuit = QuantumCircuit(1, 1)
-circuit.h(0)       # Hadamard → superposition
+circuit.h(0)
 circuit.measure(0, 0)
 ```
 
-**Résultat attendu :** Histogramme avec `0` et `1` à ~50% chacun sur 500 shots.
+**Expected result:** ~50% `0`, ~50% `1` over 500 shots.
 
-<!-- IMAGE: Circuit ex00 (texte ou mpl) + histogramme résultant avec barres 0 et 1 à 50% -->
+**Run:** `python ex00.py`
+
+<p align="center">
+  <img src="srcs/imgs/Superposition%20probatility%20bars%20(ex00).png" alt="Ex00 — superposition histogram: ~50% 0, ~50% 1 over 500 shots" width="480"/>
+</p>
 
 ---
 
-### Ex01 — Intrication
+### Ex01 — Entanglement
 
-**Objectif :** Créer l'état de Bell `(|00⟩ + |11⟩) / √2`.
+**Goal:** Create the Bell state `(|00⟩ + |11⟩) / sqrt(2)`.
 
-**Circuit :**
 ```
-q0 : ─ H ─●─ Mesure
-           │
-q1 : ─────X─ Mesure
+Circuit:  q0 : ─ H ─●─ Measure
+                     │
+          q1 : ─────X─ Measure
 ```
 
-**Code clé :**
+**Key code:**
 ```python
 circuit = QuantumCircuit(2, 2)
-circuit.h(0)        # superposition sur q0
-circuit.cx(0, 1)    # CNOT : q0 contrôle, q1 cible
+circuit.h(0)
+circuit.cx(0, 1)
 circuit.measure([0, 1], [0, 1])
 ```
 
-**Résultat attendu :** Uniquement `00` et `11`, jamais `01` ni `10`.
+**Expected result:** Only `00` and `11`, never `01` or `10`.
 
-<!-- IMAGE: Circuit ex01 + histogramme montrant uniquement 00 et 11 à ~50% chacun -->
+**Run:** `python ex01.py`
+
+<p align="center">
+  <img src="srcs/imgs/ex01%20figure%20CNOT%20gate%20and%20Bell%20state%20creation.png" alt="Ex01 — H + CNOT circuit" width="380"/>
+  &nbsp;&nbsp;&nbsp;
+  <img src="srcs/imgs/ex01%20entanglement%20histogram.png" alt="Ex01 — only 00 and 11 appear" width="420"/>
+</p>
 
 ---
 
-### Ex02 — Bruit quantique (IBM)
+### Ex02 — Quantum Noise (IBM)
 
-**Objectif :** Exécuter le même circuit de l'ex01 sur un vrai ordinateur quantique IBM et observer les différences.
+**Goal:** Run the same circuit as ex01 on a real IBM quantum computer and observe the differences caused by hardware noise.
 
-**Résultat attendu :** Les états `01` et `10` apparaissent (quelques %) à cause du bruit matériel.
+**Expected result:** States `01` and `10` appear (a few percent) even though the circuit is identical to ex01.
 
-**Pourquoi la différence ?**
-- Les qubits physiques sont imparfaits : temps de cohérence limités, erreurs de portes.
-- La transpilation adapte le circuit à la topologie du backend (toutes les paires de qubits ne sont pas directement connectées).
-- Les erreurs de mesure ajoutent aussi du bruit.
+**Why the difference?**
+- Physical qubits have limited **coherence times** — they lose their quantum state over time.
+- **Gate errors** — no physical gate is perfectly implemented.
+- **Transpilation** adapts the circuit to the backend's physical topology (extra SWAP gates add more noise).
+- **Readout errors** — measuring a qubit can give the wrong answer.
 
-<!-- IMAGE: Comparaison de deux histogrammes — ex01 (simulateur, idéal) vs ex02 (IBM réel, avec bruit visible sur 01 et 10) -->
+**Run:** `python ex02.py`
 
 ---
 
 ### Ex03 — Deutsch-Jozsa
 
-**Objectif :** Implémenter l'algorithme sur 4 qubits (3 entrée + 1 ancilla) et identifier si l'oracle est constant ou équilibré.
+**Goal:** Implement the algorithm on 4 qubits (3 input + 1 ancilla) and identify whether the oracle is constant or balanced in a single run.
 
-**Code clé :**
+**Key code:**
 ```python
 def build_dj_circuit(oracle, n):
     circuit = QuantumCircuit(n + 1, n)
-    circuit.x(n)           # ancilla → |1⟩
-    circuit.h(range(n+1))  # superposition globale
+    circuit.x(n)           # ancilla → |1>
+    circuit.h(range(n+1))  # global superposition
     circuit.compose(oracle, inplace=True)
-    circuit.h(range(n))    # interférence
+    circuit.h(range(n))    # interference
     circuit.measure(range(n), range(n))
     return circuit
 ```
 
-**Interprétation des résultats :**
+**Decision rule:**
 ```
-Mesure = "000" → Oracle CONSTANT
-Mesure ≠ "000" → Oracle ÉQUILIBRÉ
+All measured bits = 0  →  CONSTANT oracle
+Any measured bit  = 1  →  BALANCED oracle
 ```
 
-**Usage :**
-```bash
-python ex03.py
-# Teste automatiquement 3 oracles : Constant-0, Constant-1, Balanced
-```
+**Run:** `python ex03.py`
+
+> Automatically tests 3 oracles: Constant-0, Constant-1, Balanced.
+
+<p align="center">
+  <img src="srcs/imgs/ex03%20deutsch%20jozsa%20circuit.png" alt="Ex03 — Deutsch-Jozsa circuit with 3 input qubits and 1 ancilla" width="720"/>
+</p>
+
+<p align="center">
+  <img src="srcs/imgs/ex03%20oracle%20constant.png" alt="Ex03 — constant oracle: all shots give 000" width="420"/>
+  &nbsp;&nbsp;&nbsp;
+  <img src="srcs/imgs/ex03%20oracle%20balanced.png" alt="Ex03 — balanced oracle: all shots give 111" width="420"/>
+</p>
 
 ---
 
-### Ex04 — Algorithme de Grover
+### Ex04 — Grover's Algorithm
 
-**Objectif :** Implémenter Grover pour retrouver un ou plusieurs états cibles parmi 2ⁿ.
+**Goal:** Find one or more target states among 2^n with O(sqrt(N)) complexity.
 
-**Code clé :**
+**Key code:**
 ```python
-# Changer n et targets pour tester
-run_exercise(n=3, targets=["101"], shots=1024)
-run_exercise(n=3, targets=["011", "110"], shots=1024)
-run_exercise(n=2, targets=["11"], shots=1024)
+run_exercise(n=3, targets=["101"], shots=1024)         # single target
+run_exercise(n=3, targets=["011", "110"], shots=1024)  # two targets
+run_exercise(n=2, targets=["11"], shots=1024)          # minimum 2 qubits
 ```
 
-**Le nombre d'itérations est calculé automatiquement :**
+The number of iterations is computed automatically:
 ```python
 iterations = max(1, round((math.pi / 4) * math.sqrt(N / k)))
 ```
 
-**Complexité :**
-```
-Classique : O(N)    → N/2 vérifications en moyenne
-Grover     : O(√N)  → √N itérations Oracle + Diffuser
-```
+**Complexity comparison:**
 
-Pour n=10 qubits (1024 états) : classique = ~512 requêtes, Grover = ~25.
+| Qubits (n) | States (N) | Classical avg | Grover |
+|---|---|---|---|
+| 3 | 8 | 4 | 2 |
+| 5 | 32 | 16 | 4 |
+| 10 | 1 024 | 512 | 25 |
+| 20 | 1 048 576 | 524 288 | 804 |
+
+**Run:** `python ex04.py`
+
+**3-qubit result (n=3, target="101"):**
+
+<p align="center">
+  <img src="srcs/imgs/ex04%20grover%20circuit.png" alt="Ex04 — Grover circuit for 3 qubits" width="720"/>
+</p>
+
+<p align="center">
+  <img src="srcs/imgs/ex%2004%203qubit%2C%20single%20target%20101.png" alt="Ex04 — Grover histogram: 101 dominates at ~95% of shots" width="480"/>
+</p>
+
+**2-qubit edge case (n=2, target="11"):**
+
+With n=2 and N=4, the exact optimal number of iterations is 1, but the rounding in the formula yields 2. The second iteration overshoots the amplitude peak and the distribution collapses back to near-uniform. This demonstrates that the approximation breaks down for very small registers.
+
+<p align="center">
+  <img src="srcs/imgs/ex04%20grover%20circuit%202%20qubits.png" alt="Ex04 — Grover circuit for 2 qubits" width="720"/>
+</p>
+
+<p align="center">
+  <img src="srcs/imgs/ex04%202%20qubits%20histogram.png" alt="Ex04 — 2-qubit Grover: uniform distribution due to iteration overshoot" width="480"/>
+</p>
 
 ---
 
-## 8. Glossaire
+## 8. Glossary
 
-| Terme | Définition |
+| Term | Definition |
 |---|---|
-| **Qubit** | Unité d'information quantique, pouvant être en superposition de |0⟩ et |1⟩ |
-| **Superposition** | État dans lequel un qubit est simultanément 0 et 1 avec des amplitudes associées |
-| **Mesure** | Opération irréversible qui effondre la superposition sur un état classique |
-| **Shot** | Une répétition du circuit. On accumule de nombreux shots pour reconstituer les probabilités |
-| **Intrication** | Corrélation non-locale entre deux ou plusieurs qubits : l'état global ne peut pas être factorisé |
-| **État de Bell** | État intriqué maximal de deux qubits : `(|00⟩+|11⟩)/√2` |
-| **Amplitude** | Nombre complexe associé à chaque état de base. La probabilité est le carré de sa norme |
-| **Phase** | Argument complexe d'une amplitude. Invisible à la mesure directe, mais crucial pour l'interférence |
-| **Porte unitaire** | Transformation quantique réversible qui préserve la norme de l'état |
-| **Oracle** | Boîte noire qui encode une fonction f dans le circuit quantique |
-| **Kick-back de phase** | Technique pour encoder f(x) dans la phase via un qubit ancilla en `(|0⟩-|1⟩)/√2` |
-| **Diffuser** | Opérateur de Grover qui amplifie les amplitudes des états cibles par réflexion |
-| **Coherence** | Capacité d'un qubit à maintenir sa superposition. Se dégrade avec le temps (décoherence) |
-| **Bruit quantique** | Erreurs dues aux imperfections matérielles, à la décoherence et aux interactions parasites |
-| **Transpilation** | Adaptation d'un circuit idéal à la topologie et aux contraintes réelles d'un backend IBM |
-| **Simulateur Aer** | Simulateur classique de circuits quantiques, idéal (sans bruit), fourni par IBM/Qiskit |
-| **Sphère de Bloch** | Représentation géométrique de l'état d'un qubit sur une sphère unitaire |
-| **Produit tensoriel ⊗** | Opération mathématique pour combiner des espaces d'états de plusieurs qubits |
+| **Qubit** | Quantum unit of information, capable of being in superposition of \|0⟩ and \|1⟩ |
+| **Superposition** | State in which a qubit is simultaneously 0 and 1 with associated complex amplitudes |
+| **Measurement** | Irreversible operation that collapses superposition to a classical state |
+| **Shot** | One execution of the circuit. Many shots are accumulated to reconstruct probabilities |
+| **Entanglement** | Non-local correlation between qubits: the global state cannot be factorised into individual states |
+| **Bell state** | Maximally entangled 2-qubit state: `(|00⟩+|11⟩)/sqrt(2)` |
+| **Amplitude** | Complex number associated with each basis state. Probability = squared norm of amplitude |
+| **Phase** | Complex argument of an amplitude. Invisible to direct measurement, crucial for interference |
+| **Unitary gate** | Reversible quantum transformation that preserves the norm of the state |
+| **Oracle** | Black box encoding a function f into the quantum circuit via phase manipulation |
+| **Phase kickback** | Technique to encode f(x) into the phase via an ancilla qubit prepared in `(|0⟩-|1⟩)/sqrt(2)` |
+| **Diffuser** | Grover operator that amplifies target amplitudes by reflecting around the mean |
+| **Decoherence** | Loss of a qubit's quantum superposition due to interaction with the environment |
+| **Quantum noise** | Errors due to hardware imperfections, decoherence, and parasitic interactions |
+| **Transpilation** | Adaptation of an ideal circuit to the topology and constraints of a real IBM backend |
+| **Aer Simulator** | Ideal (noiseless) quantum circuit simulator provided by IBM/Qiskit |
+| **Bloch Sphere** | Geometric representation of a single qubit state as a point on a unit sphere |
+| **Tensor product ⊗** | Mathematical operation for combining state spaces of multiple qubits |
 
 ---
 
-## 9. Références
+## 9. References
 
-**Documentation officielle**
+**Official documentation**
 - [IBM Quantum — Hello World](https://quantum.cloud.ibm.com/docs/en/guides/hello-world)
 - [IBM Quantum Learning — Basics of Quantum Information](https://quantum.cloud.ibm.com/learning/en/courses/basics-of-quantum-information/single-systems/introduction)
 - [Qiskit Documentation](https://docs.quantum.ibm.com/)
 
-**Vidéos pédagogiques**
+**Video resources**
 - [Introduction to Quantum Computing (playlist)](https://www.youtube.com/watch?v=9PQIKPHgzo4&list=PLE3ovFxnzNpY3zGw8sHqRorxecoItAAq4)
-- [Qubits en détail](https://www.youtube.com/watch?v=bLW4wraE77I&list=PLE3ovFxnzNpY3zGw8sHqRorxecoItAAq4&index=4)
-- [Portes quantiques](https://www.youtube.com/watch?v=0WZmkIyHOks&list=PLE3ovFxnzNpY3zGw8sHqRorxecoItAAq4&index=10)
-- [Algorithmes quantiques](https://www.youtube.com/watch?v=5_Di12FXRsM&list=PLE3ovFxnzNpY3zGw8sHqRorxecoItAAq4&index=18)
+- [Qubits in detail](https://www.youtube.com/watch?v=bLW4wraE77I&list=PLE3ovFxnzNpY3zGw8sHqRorxecoItAAq4&index=4)
+- [Quantum gates](https://www.youtube.com/watch?v=0WZmkIyHOks&list=PLE3ovFxnzNpY3zGw8sHqRorxecoItAAq4&index=10)
+- [Quantum algorithms](https://www.youtube.com/watch?v=5_Di12FXRsM&list=PLE3ovFxnzNpY3zGw8sHqRorxecoItAAq4&index=18)
 
-**Livres**
+**Books**
 - *L'Univers à portée de main* — Christophe Galfard
 - *A Brief History of Time* — Stephen Hawking
-- *Quantum Computation and Quantum Information* — Nielsen & Chuang (référence académique complète)
+- *Quantum Computation and Quantum Information* — Nielsen & Chuang (complete academic reference)
