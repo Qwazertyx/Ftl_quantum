@@ -18,9 +18,9 @@ def run_exercise(shots: int) -> None:
     print("Circuit (text diagram):")
     print(circuit.draw("text"))
 
-    #figure = circuit.draw(output="mpl")
-    #figure.tight_layout()
-    #plt.show()
+    figure = circuit.draw(output="mpl")
+    figure.tight_layout()
+    plt.show()
 
     simulator = AerSimulator()
     compiled = transpile(circuit, simulator)

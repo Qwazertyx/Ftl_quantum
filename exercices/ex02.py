@@ -33,6 +33,9 @@ def build_entanglement_circuit() -> QuantumCircuit:
     return circuit
 
 def run_on_ibm_hardware(circuit: QuantumCircuit, shots: int) -> dict:
+    if service is None:
+        raise RuntimeError("IBM Quantum service is not configured.")
+
     backend = service.least_busy(operational=True, simulator=False, min_num_qubits=2)
 
     if backend is None:
@@ -46,17 +49,29 @@ def run_on_ibm_hardware(circuit: QuantumCircuit, shots: int) -> dict:
     return result.get_counts()
 
 
+def run_on_local_simulator(circuit: QuantumCircuit, shots: int) -> dict:
+    simulator = AerSimulator()
+    compiled = transpile(circuit, simulator, optimization_level=1)
+    job = simulator.run(compiled, shots=shots)
+    result = job.result()
+    return result.get_counts()
+
+
 def run_exercise(shots: int = 500) -> None:
     circuit = build_entanglement_circuit()
 
     print("Circuit (text diagram):")
     print(circuit.draw("text"))
 
+    counts = None
+    title = ""
     try:
         counts = run_on_ibm_hardware(circuit, shots)
         title = f"Hardware Entanglement ({shots} shots)"
     except Exception as error:
         print(f"hardware unavailable: {error}")
+        counts = run_on_local_simulator(circuit, shots)
+        title = f"Local Simulator Entanglement ({shots} shots)"
 
     print(f"Counts for {shots} shots: {counts}")
 
