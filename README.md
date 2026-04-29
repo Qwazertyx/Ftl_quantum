@@ -637,7 +637,7 @@ Every basis state has equal amplitude $\frac{1}{\sqrt{N}}$ and equal probability
 
 The oracle flips the sign of the amplitude of the target state(s) without changing any other state:
 
-$$\text{Oracle}\,|x\rangle = \begin{cases} -|x\rangle & \text{if } x \text{ is a solution} \\ \phantom{-}|x\rangle & \text{otherwise} \end{cases}$$
+$$\text{Oracle}\,|x\rangle = \begin{cases} -|x\rangle & \text{if } x \text{ is a solution} \\ +|x\rangle & \text{otherwise} \end{cases}$$
 
 After the oracle, the target amplitude is $-\frac{1}{\sqrt{N}}$ while all others remain $+\frac{1}{\sqrt{N}}$. The probability distribution is **still uniform** — you cannot yet detect the target by measuring. The information is encoded in the sign of the amplitude (the phase), not in the probability.
 
@@ -864,9 +864,9 @@ The quantum algorithm queries $f$ only **once**, but queries it on all $2^n$ inp
 </p>
 
 <p align="center">
-  <img src="srcs/imgs/ex03%20oracle%20constant.png" alt="Constant oracle: 100% of shots give 000" width="320"/>
+  <img src="srcs/imgs/ex03%20oracle%20constant.png" alt="Constant oracle: 100% of shots give 000" width="420"/>
   &nbsp;&nbsp;&nbsp;
-  <img src="srcs/imgs/ex03%20oracle%20balanced.png" alt="Balanced oracle: 100% of shots give 111" width="320"/>
+  <img src="srcs/imgs/ex03%20oracle%20balanced.png" alt="Balanced oracle: 100% of shots give 111" width="420"/>
 </p>
 <p align="center"><em>Left: constant oracle — all 1024 shots give <code>000</code> &nbsp;—&nbsp; Right: balanced oracle — all 1024 shots give <code>111</code></em></p>
 
@@ -900,7 +900,7 @@ Apply H to all $n$ qubits. Every state $|x\rangle$ gets amplitude $\frac{1}{\sqr
 **Step 2 — Oracle (phase marking):**  
 The oracle flips the sign of the amplitude of any target state and leaves all others unchanged:
 
-$$\text{Oracle}\,|x\rangle = \begin{cases} -|x\rangle & \text{if } x \text{ is a target} \\ \phantom{-}|x\rangle & \text{otherwise} \end{cases}$$
+$$\text{Oracle}\,|x\rangle = \begin{cases} -|x\rangle & \text{if } x \text{ is a target} \\ +|x\rangle & \text{otherwise} \end{cases}$$
 
 After the oracle, the probabilities of measuring each state are still all $\frac{1}{N}$ — the oracle changed only the **sign** of the target's amplitude, not its magnitude. The information is hidden in the phase. You cannot detect the target yet.
 
@@ -938,10 +938,10 @@ $k_{\text{opt}} = \text{round}\!\left(\frac{\pi}{4}\sqrt{8}\right) = \text{round
 The target appears in ~95% of shots. The remaining ~5% are spread evenly across the other 7 states.
 
 <p align="center">
-  <img src="srcs/imgs/ex04 exemple 1 circuit.png" alt="Grover circuit — n=3, single target 101" width="620"/>
+  <img src="srcs/imgs/ex04_exemple_1_circuit.png" alt="Grover circuit — n=3, single target 101" width="720"/>
 </p>
 <p align="center">
-  <img src="srcs/imgs/ex04 example 1 graph.png" alt="Grover histogram — n=3, target 101: ~95% of shots" width="380"/>
+  <img src="srcs/imgs/ex04_example_1_graph.png" alt="Grover histogram — n=3, target 101: ~95% of shots" width="480"/>
 </p>
 
 ---
@@ -963,10 +963,10 @@ $$P(2) = \sin^2\!\left(\frac{5\pi}{6}\right) = \sin^2\!\left(\frac{\pi}{6}\right
 The algorithm overshot. The histogram is nearly uniform — the amplification went past the peak and came back down, making all states equally likely again. This is the same failure mode as Example 3 for the same mathematical reason: $N/m = 4$ in both cases.
 
 <p align="center">
-  <img src="srcs/imgs/ex04 example2 circuit.png" alt="Grover circuit — n=3, two targets 011 and 110" width="620"/>
+  <img src="srcs/imgs/ex04_example2_circuit.png" alt="Grover circuit — n=3, two targets 011 and 110" width="720"/>
 </p>
 <p align="center">
-  <img src="srcs/imgs/ex04 example 2 graph.png" alt="Grover histogram — n=3, two targets: near-uniform, algorithm overshot" width="380"/>
+  <img src="srcs/imgs/ex04_example_2_graph.png" alt="Grover histogram — n=3, two targets: near-uniform, algorithm overshot" width="480"/>
 </p>
 
 ---
@@ -982,10 +982,10 @@ But the exact optimal is again $k = 1$ (probability = 100%). With $k = 2$, the p
 This is an important result: **Grover's algorithm requires a large enough search space to work well.** The approximation $k_{\text{opt}} \approx \frac{\pi}{4}\sqrt{N/m}$ assumes $N \gg m$. When $N/m$ is small (here $N/m = 4$), the rounding error in $k$ is significant relative to the period of the probability oscillation.
 
 <p align="center">
-  <img src="srcs/imgs/ex04 example 3 circuit.png" alt="Grover circuit — n=2, single target 11" width="620"/>
+  <img src="srcs/imgs/ex04_example_3_circuit.png" alt="Grover circuit — n=2, single target 11" width="720"/>
 </p>
 <p align="center">
-  <img src="srcs/imgs/ex04 example 3 graph.png" alt="Grover histogram — n=2, target 11: near-uniform, algorithm overshot" width="380"/>
+  <img src="srcs/imgs/ex04_example_3_graph.png" alt="Grover histogram — n=2, target 11: near-uniform, algorithm overshot" width="480"/>
 </p>
 
 **Key code:**
