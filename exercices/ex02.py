@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from qiskit import QuantumCircuit, transpile
 from qiskit.visualization import plot_histogram
 from qiskit_aer import AerSimulator
-from qiskit_ibm_runtime import QiskitRuntimeService
+from qiskit_ibm_runtime import QiskitRuntimeService, SamplerV2
 
 load_dotenv()
 
@@ -44,9 +44,19 @@ def run_on_ibm_hardware(circuit: QuantumCircuit, shots: int) -> dict:
     print(f"Using backend: {backend.name}")
 
     compiled = transpile(circuit, backend, optimization_level=1)
-    job = backend.run(compiled, shots=shots)
-    result = job.result()
-    return result.get_counts()
+    sampler = SamplerV2(mode=backend)
+    job = sampler.run([compiled], shots=shots)
+    print(f"Submitted job: {job.job_id()}")
+    print(f"Initial job status: {job.status()}")
+    result = job.result()[0]
+
+    if hasattr(result.data, "c"):
+        return result.data.c.get_counts()
+
+    if hasattr(result.data, "meas"):
+        return result.data.meas.get_counts()
+
+    raise RuntimeError("Sampler result did not include a classical register with counts.")
 
 
 def run_on_local_simulator(circuit: QuantumCircuit, shots: int) -> dict:
