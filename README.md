@@ -797,7 +797,7 @@ Comparing the two histograms side by side makes the difference clear: the simula
 <p align="center">
   <img src="srcs/imgs/ex01%20entanglement%20histogram.png" alt="Ex01 — ideal simulator: only 00 and 11" width="420"/>
   &nbsp;&nbsp;&nbsp;
-  <img src="srcs/imgs/quantum noise ex02.png" alt="Ex02 — real IBM hardware: 01 and 10 appear due to quantum noise" width="420"/>
+  <img src="srcs/imgs/quantum_noise_ex02.png" alt="Ex02 — real IBM hardware: 01 and 10 appear due to quantum noise" width="420"/>
 </p>
 <p align="center"><em>Left: ideal Aer simulator (ex01) &nbsp;—&nbsp; Right: real IBM hardware (ex02)</em></p>
 
@@ -805,72 +805,200 @@ Comparing the two histograms side by side makes the difference clear: the simula
 
 ### Ex03 — Deutsch-Jozsa
 
-**Goal:** Implement the Deutsch-Jozsa algorithm on 4 qubits (3 input + 1 ancilla) and determine whether an oracle is constant or balanced in a single run.
+**Goal:** Implement the Deutsch-Jozsa algorithm on 4 qubits (3 input + 1 ancilla) and determine — in a single circuit execution — whether a given oracle is constant or balanced.
+
+**Run:** `python ex03.py`  *(automatically tests Constant-0, Constant-1, and Balanced oracles)*
+
+---
+
+#### What the circuit does, step by step
+
+The circuit uses **4 qubits**: q0, q1, q2 are the input qubits, and q3 is the **ancilla** (an auxiliary qubit used as a tool — it is never measured).
+
+**Step 1 — Prepare the ancilla:**  
+Apply X to q3, putting it in $|1\rangle$. Then apply H to all 4 qubits.  
+- The 3 input qubits enter a **uniform superposition** of all 8 possible inputs simultaneously.  
+- The ancilla ends up in $\frac{1}{\sqrt{2}}(|0\rangle - |1\rangle)$ — the specific state required for phase kickback.
+
+**Step 2 — Apply the oracle:**  
+The oracle is a black box that computes $f(x)$. Because the ancilla is in $\frac{1}{\sqrt{2}}(|0\rangle - |1\rangle)$, the effect on the input register is:
+
+$$|x\rangle \;\longrightarrow\; (-1)^{f(x)}\,|x\rangle$$
+
+The value of $f(x)$ is encoded as a **phase** ($+1$ or $-1$) on each input state — not as a bit flip. This is called **phase kickback**.
+
+- If $f$ is constant: all phases are identical → no relative difference between input states.
+- If $f$ is balanced: half the phases are $+1$, half are $-1$ → the input states are split into two groups with opposite signs.
+
+**Step 3 — Second H layer (interference):**  
+Apply H again to the 3 input qubits. Due to quantum interference:
+- If all phases were identical (constant $f$): all terms constructively interfere into $|000\rangle$ → **100% chance of measuring `000`**.
+- If phases were split (balanced $f$): $|000\rangle$ is completely cancelled by destructive interference → **0% chance of measuring `000`**, guaranteed to measure something else.
+
+**Decision rule:**
+
+$$\text{Measure } |000\rangle \;\Longrightarrow\; f \text{ is CONSTANT} \qquad \text{Measure anything else} \;\Longrightarrow\; f \text{ is BALANCED}$$
+
+This is deterministic — not probabilistic. The algorithm answers with **certainty** in one shot.
+
+---
+
+#### Why this is faster than any classical algorithm
+
+A classical computer must call $f$ on actual inputs to learn about it. In the worst case, it needs to evaluate $f$ on $2^{n-1} + 1 = 5$ different inputs (for $n=3$) before it can be certain. It could be lucky and find two different outputs early, but it could also see the same output 4 times in a row — still unable to distinguish constant from balanced.
+
+The quantum algorithm queries $f$ only **once**, but queries it on all $2^n$ inputs *simultaneously* through superposition. The oracle's effect is felt across the entire superposition in a single step. The second H layer then turns that global phase pattern into a single measurable outcome.
+
+---
+
+#### The three oracles tested
+
+**Constant-0:** the oracle does nothing. Every input gets phase $+1$. The second H collapses everything to $|000\rangle$. → `000`
+
+**Constant-1:** the oracle applies X to the ancilla unconditionally. Every input gets phase $-1$. All phases are still equal, so the second H still collapses to $|000\rangle$ (with a global $-1$ that is undetectable). → `000`
+
+**Balanced:** each input qubit is CNOTed onto the ancilla, implementing $f(x) = x_0 \oplus x_1 \oplus x_2$. Exactly 4 of the 8 inputs get phase $+1$ and 4 get phase $-1$. The second H completely cancels $|000\rangle$. → `111` (in this specific oracle)
+
+<p align="center">
+  <img src="srcs/imgs/ex03%20deutsch%20jozsa%20circuit.png" alt="Ex03 — Deutsch-Jozsa circuit: X on ancilla, H on all, oracle, H on inputs, measure" width="720"/>
+</p>
+
+<p align="center">
+  <img src="srcs/imgs/ex03%20oracle%20constant.png" alt="Constant oracle: 100% of shots give 000" width="320"/>
+  &nbsp;&nbsp;&nbsp;
+  <img src="srcs/imgs/ex03%20oracle%20balanced.png" alt="Balanced oracle: 100% of shots give 111" width="320"/>
+</p>
+<p align="center"><em>Left: constant oracle — all 1024 shots give <code>000</code> &nbsp;—&nbsp; Right: balanced oracle — all 1024 shots give <code>111</code></em></p>
 
 **Key code:**
 ```python
 def build_dj_circuit(oracle, n):
     circuit = QuantumCircuit(n + 1, n)
-    circuit.x(n)           # ancilla → |1⟩
-    circuit.h(range(n+1))  # global superposition
+    circuit.x(n)           # flip ancilla to |1⟩
+    circuit.h(range(n+1))  # superpose all qubits
     circuit.compose(oracle, inplace=True)
-    circuit.h(range(n))    # interference
+    circuit.h(range(n))    # interference on input qubits only
     circuit.measure(range(n), range(n))
     return circuit
 ```
-
-**Decision rule:**
-
-$$\text{All measured bits} = 0 \;\Longrightarrow\; \text{CONSTANT} \qquad \text{Any measured bit} = 1 \;\Longrightarrow\; \text{BALANCED}$$
-
-**Run:** `python ex03.py`  *(automatically tests Constant-0, Constant-1, and Balanced oracles)*
-
-<p align="center">
-  <img src="srcs/imgs/ex03%20deutsch%20jozsa%20circuit.png" alt="Ex03 — Deutsch-Jozsa circuit" width="720"/>
-</p>
-
-<p align="center">
-  <img src="srcs/imgs/ex03%20oracle%20constant.png" alt="Constant oracle: all shots give 000" width="420"/>
-  &nbsp;&nbsp;&nbsp;
-  <img src="srcs/imgs/ex03%20oracle%20balanced.png" alt="Balanced oracle: all shots give 111" width="420"/>
-</p>
 
 ---
 
 ### Ex04 — Grover's Algorithm
 
-**Goal:** Find one or more target states among $2^n$ with $O(\sqrt{N})$ oracle queries.
-
-**Key code:**
-```python
-run_exercise(n=3, targets=["101"], shots=1024)         # single target
-run_exercise(n=3, targets=["011", "110"], shots=1024)  # two targets
-run_exercise(n=2, targets=["11"], shots=1024)          # minimum 2 qubits
-```
-
-The number of iterations is computed automatically:
-```python
-iterations = max(1, round((math.pi / 4) * math.sqrt(N / k)))
-```
-
-**Complexity comparison:**
-
-| Qubits $n$ | States $N = 2^n$ | Classical average | Grover $k_{\text{opt}}$ |
-|:---:|:---:|:---:|:---:|
-| 3 | 8 | 4 | 2 |
-| 5 | 32 | 16 | 4 |
-| 10 | 1 024 | 512 | 25 |
-| 20 | 1 048 576 | 524 288 | 804 |
+**Goal:** Find one or more target states among $2^n$ with $O(\sqrt{N})$ oracle queries instead of the classical $O(N)$.
 
 **Run:** `python ex04.py`
 
-<p align="center">
-  <img src="srcs/imgs/ex04%20grover%20circuit.png" alt="Ex04 — Grover circuit for 3 qubits" width="720"/>
-</p>
+---
+
+#### What the circuit does, step by step
+
+**Step 1 — Initialisation:**  
+Apply H to all $n$ qubits. Every state $|x\rangle$ gets amplitude $\frac{1}{\sqrt{N}}$ — a perfectly uniform superposition. All states are equally likely.
+
+**Step 2 — Oracle (phase marking):**  
+The oracle flips the sign of the amplitude of any target state and leaves all others unchanged:
+
+$$\text{Oracle}\,|x\rangle = \begin{cases} -|x\rangle & \text{if } x \text{ is a target} \\ \phantom{-}|x\rangle & \text{otherwise} \end{cases}$$
+
+After the oracle, the probabilities of measuring each state are still all $\frac{1}{N}$ — the oracle changed only the **sign** of the target's amplitude, not its magnitude. The information is hidden in the phase. You cannot detect the target yet.
+
+**Step 3 — Diffuser (amplification by reflection):**  
+The diffuser reflects all amplitudes around their **mean value**. After the oracle, the target amplitude is the only negative one, so the mean is slightly below $\frac{1}{\sqrt{N}}$. Reflecting around this mean pushes the target well above average and slightly lowers all other states.
+
+Each Oracle + Diffuser iteration increases the target amplitude by approximately $\frac{2}{\sqrt{N}}$. After $k_{\text{opt}}$ iterations, the target amplitude has grown large enough that measuring it is near-certain.
+
+**Step 4 — Measure:**  
+The target state now has overwhelmingly higher probability than all others. Measuring collapses the state to the target with high probability.
+
+---
+
+#### The optimal number of iterations
+
+$$k_{\text{opt}} \approx \frac{\pi}{4}\sqrt{\frac{N}{m}}$$
+
+where $N = 2^n$ is the total number of states and $m$ is the number of targets.
+
+| Qubits $n$ | States $N$ | Targets $m$ | $k_{\text{opt}}$ | Classical average |
+|:---:|:---:|:---:|:---:|:---:|
+| 3 | 8 | 1 | 2 | 4 |
+| 5 | 32 | 1 | 4 | 16 |
+| 10 | 1 024 | 1 | 25 | 512 |
+| 20 | 1 048 576 | 1 | 804 | 524 288 |
+
+**Important:** the formula is an approximation. It works very well when $N \gg m$, but breaks down when $N/m$ is small (e.g. $N/m = 4$). In those cases, the rounded $k$ can be one step past the optimal, and the amplitude overshoots the peak — reducing the success probability back toward random. This is demonstrated in examples 2 and 3 below.
+
+---
+
+#### Example 1 — $n=3$ qubits, single target `101`
+
+$k_{\text{opt}} = \text{round}\!\left(\frac{\pi}{4}\sqrt{8}\right) = \text{round}(2.22) = 2$
+
+The target appears in ~95% of shots. The remaining ~5% are spread evenly across the other 7 states.
 
 <p align="center">
-  <img src="srcs/imgs/ex%2004%203qubit%2C%20single%20target%20101.png" alt="Ex04 — target 101 at ~95% of shots" width="480"/>
+  <img src="srcs/imgs/ex04 exemple 1 circuit.png" alt="Grover circuit — n=3, single target 101" width="620"/>
 </p>
+<p align="center">
+  <img src="srcs/imgs/ex04 example 1 graph.png" alt="Grover histogram — n=3, target 101: ~95% of shots" width="380"/>
+</p>
+
+---
+
+#### Example 2 — $n=3$ qubits, two targets `011` and `110`
+
+With 2 targets, the formula gives:
+
+$$k_{\text{opt}} = \text{round}\!\left(\frac{\pi}{4}\sqrt{\frac{8}{2}}\right) = \text{round}\!\left(\frac{\pi}{4} \cdot 2\right) = \text{round}(1.57) = 2$$
+
+But the **exact** optimal is $k = 1$. At $k = 1$ with $m = 2$ targets:
+
+$$\theta = \arcsin\!\sqrt{\frac{2}{8}} = \arcsin\!\left(\frac{1}{2}\right) = \frac{\pi}{6} \qquad P(1) = \sin^2\!\left(\frac{3\pi}{6}\right) = \sin^2\!\left(\frac{\pi}{2}\right) = 1 \quad (100\%)$$
+
+With $k = 2$ however:
+
+$$P(2) = \sin^2\!\left(\frac{5\pi}{6}\right) = \sin^2\!\left(\frac{\pi}{6}\right) = \frac{1}{4} = 25\% \text{ per target}$$
+
+The algorithm overshot. The histogram is nearly uniform — the amplification went past the peak and came back down, making all states equally likely again. This is the same failure mode as Example 3 for the same mathematical reason: $N/m = 4$ in both cases.
+
+<p align="center">
+  <img src="srcs/imgs/ex04 example2 circuit.png" alt="Grover circuit — n=3, two targets 011 and 110" width="620"/>
+</p>
+<p align="center">
+  <img src="srcs/imgs/ex04 example 2 graph.png" alt="Grover histogram — n=3, two targets: near-uniform, algorithm overshot" width="380"/>
+</p>
+
+---
+
+#### Example 3 — $n=2$ qubits, single target `11`
+
+With $N = 4$ and $m = 1$:
+
+$$k_{\text{opt}} = \text{round}\!\left(\frac{\pi}{4}\sqrt{4}\right) = \text{round}\!\left(\frac{\pi}{2}\right) = \text{round}(1.57) = 2$$
+
+But the exact optimal is again $k = 1$ (probability = 100%). With $k = 2$, the probability drops to 25% — no better than guessing at random among 4 states. The histogram is uniform.
+
+This is an important result: **Grover's algorithm requires a large enough search space to work well.** The approximation $k_{\text{opt}} \approx \frac{\pi}{4}\sqrt{N/m}$ assumes $N \gg m$. When $N/m$ is small (here $N/m = 4$), the rounding error in $k$ is significant relative to the period of the probability oscillation.
+
+<p align="center">
+  <img src="srcs/imgs/ex04 example 3 circuit.png" alt="Grover circuit — n=2, single target 11" width="620"/>
+</p>
+<p align="center">
+  <img src="srcs/imgs/ex04 example 3 graph.png" alt="Grover histogram — n=2, target 11: near-uniform, algorithm overshot" width="380"/>
+</p>
+
+**Key code:**
+```python
+run_exercise(n=3, targets=["101"], shots=1024)         # Example 1: single target, works perfectly
+run_exercise(n=3, targets=["011", "110"], shots=1024)  # Example 2: two targets, k_opt rounding fails
+run_exercise(n=2, targets=["11"], shots=1024)          # Example 3: too small N, k_opt rounding fails
+```
+
+```python
+# Iterations computed automatically:
+iterations = max(1, round((math.pi / 4) * math.sqrt(N / k)))
+```
 
 ---
 
