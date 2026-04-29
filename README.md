@@ -174,10 +174,10 @@ The states $|0\rangle$ and $|1\rangle$ are **orthonormal**: they are perfectly d
 
 | Notation | Description | Column vector |
 |---|---|---|
-| $\|0\rangle$ | Basis state "zero" | $\begin{pmatrix}1\\0\end{pmatrix}$ |
-| $\|1\rangle$ | Basis state "one" | $\begin{pmatrix}0\\1\end{pmatrix}$ |
-| $\|{+}\rangle = H\|0\rangle$ | $(+)$ superposition | $\frac{1}{\sqrt{2}}\begin{pmatrix}1\\1\end{pmatrix}$ |
-| $\|{-}\rangle = H\|1\rangle$ | $(-)$ superposition | $\frac{1}{\sqrt{2}}\begin{pmatrix}1\\-1\end{pmatrix}$ |
+| $\|0\rangle$ | Basis state "zero" | `[1, 0]` |
+| $\|1\rangle$ | Basis state "one" | `[0, 1]` |
+| $\|{+}\rangle = H\|0\rangle$ | $(+)$ superposition | `[1/√2, 1/√2]` |
+| $\|{-}\rangle = H\|1\rangle$ | $(-)$ superposition | `[1/√2, -1/√2]` |
 
 ### 3.2 Vector and Matrix Representation
 
