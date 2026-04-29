@@ -797,7 +797,7 @@ Comparing the two histograms side by side makes the difference clear: the simula
 <p align="center">
   <img src="srcs/imgs/ex01%20entanglement%20histogram.png" alt="Ex01 — ideal simulator: only 00 and 11" width="420"/>
   &nbsp;&nbsp;&nbsp;
-  <img src="srcs/imgs/quantum_noise_ex02.png" alt="Ex02 — real IBM hardware: 01 and 10 appear due to quantum noise" width="420"/>
+  <img src="srcs/imgs/quantum noise ex02.png" alt="Ex02 — real IBM hardware: 01 and 10 appear due to quantum noise" width="420"/>
 </p>
 <p align="center"><em>Left: ideal Aer simulator (ex01) &nbsp;—&nbsp; Right: real IBM hardware (ex02)</em></p>
 
