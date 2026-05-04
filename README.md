@@ -451,7 +451,11 @@ Entanglement is perhaps the most counter-intuitive phenomenon in quantum mechani
 
 $$|\Phi^+\rangle = \frac{1}{\sqrt{2}}\bigl(|00\rangle + |11\rangle\bigr)$$
 
-**Why this state cannot be factorised:** suppose it could be written as $(a|0\rangle + b|1\rangle)\otimes(c|0\rangle + d|1\rangle)$. Expanding:
+**Why this state cannot be factorised:**
+
+The simplest way to see it: in $\frac{1}{\sqrt{2}}(|00\rangle + |11\rangle)$, the outcomes `01` and `10` have zero probability. But if the two qubits were independent (factorisable), measuring qubit 0 as $|0\rangle$ would tell us nothing about qubit 1, which could still be $|0\rangle$ or $|1\rangle$. The fact that qubit 1 is *forced* to match qubit 0 is only possible because they are not independent.
+
+For the mathematically inclined, here is the formal proof. Suppose it could be written as $(a|0\rangle + b|1\rangle)\otimes(c|0\rangle + d|1\rangle)$. Expanding:
 
 $$= ac|00\rangle + ad|01\rangle + bc|10\rangle + bd|11\rangle$$
 
@@ -550,16 +554,15 @@ $$\frac{1}{\sqrt{2^n}}\sum_{x=0}^{2^n-1}(-1)^{f(x)}|x\rangle \otimes \frac{|0\ra
 
 **Step 4 — Interference (second H layer on input qubits)**
 
-Applying $H^{\otimes n}$ again on the $n$ input qubits. The result, after some algebra, is:
+Apply H again to the $n$ input qubits. This is the interference step — H "mixes" all the states together, and phases determine whether they add up or cancel.
 
-$$H^{\otimes n}\,\frac{1}{\sqrt{2^n}}\sum_{x}(-1)^{f(x)}|x\rangle = \sum_{z}\left(\frac{1}{2^n}\sum_{x}(-1)^{f(x)+x\cdot z}\right)|z\rangle$$
+Think of it like waves: two waves of the same sign add up (constructive interference), two waves of opposite signs cancel out (destructive interference).
 
-The amplitude of the all-zeros state $|0\rangle^{\otimes n} = |00\ldots0\rangle$ is:
+- $f$ **constant**: all phases are identical (all $+1$ or all $-1$). The waves all point in the same direction and **add constructively** into $|00\ldots0\rangle$. The amplitude of $|00\ldots0\rangle$ becomes $\pm 1$ → **probability 100%** of measuring all zeros.
 
-$$\frac{1}{2^n}\sum_{x=0}^{2^n-1}(-1)^{f(x)}$$
+- $f$ **balanced**: exactly half the phases are $+1$ and half are $-1$. These waves cancel each other perfectly → the amplitude of $|00\ldots0\rangle$ becomes exactly $0$ → **probability 0%** of measuring all zeros. The probability has been pushed entirely into other states.
 
-- $f$ **constant**: all $(-1)^{f(x)}$ equal → sum $= \pm 2^n$ → amplitude $= \pm 1$ → **probability 1** of measuring $|00\ldots0\rangle$.
-- $f$ **balanced**: exactly half are $+1$, half are $-1$ → sum $= 0$ → amplitude $= 0$ → **probability 0** of measuring $|00\ldots0\rangle$.
+> **Intuition:** the second H is like asking "did all the inputs agree?". If yes (constant), the answer collapses to the all-zero state. If not (balanced), the all-zero state is completely forbidden.
 
 **Step 5 — Measurement**
 
@@ -618,7 +621,7 @@ q2 :  ─ H ─ [ Oracle ] ─ [ Diffuser ] ─ [ Oracle ] ─ [ Diffuser ] ─ 
 ```
 
 <p align="center">
-  <img src="srcs/imgs/ex04%20grover%20circuit.png" alt="Grover's algorithm circuit — 3 qubits" width="750"/>
+  <img src="srcs/imgs/ex04 exemple 1 circuit.png" alt="Grover's algorithm circuit — 3 qubits" width="750"/>
 </p>
 
 ---
@@ -647,13 +650,17 @@ The diffuser is defined as:
 
 $$D = 2|s\rangle\langle s| - I = H^{\otimes n}(2|0\rangle\langle 0| - I)H^{\otimes n}$$
 
-It performs a **reflection about the mean amplitude**. Let $\mu$ be the average amplitude of all states after the oracle. Reflecting each amplitude $a_x$ around $\mu$ transforms it to $2\mu - a_x$.
+It performs a **reflection about the mean amplitude**.
 
-After one Oracle + Diffuser iteration on a single target:
+**How to visualise it:** imagine a bar chart where all bars have height $\frac{1}{\sqrt{N}}$, except the target which is $-\frac{1}{\sqrt{N}}$. The mean of all bars is slightly below $\frac{1}{\sqrt{N}}$ because one bar is dragging it down. The diffuser reflects every bar around this mean: bars that were above the mean get pulled down a little, and the bar that was *below* the mean gets pushed *above* it by a lot.
 
-$$\text{Target amplitude:} \quad -\frac{1}{\sqrt{N}} \;\longrightarrow\; \frac{(N-2)}{\sqrt{N}\cdot N} \cdot 2 + \frac{1}{\sqrt{N}} \approx \frac{3}{\sqrt{N}} \quad \text{(grows)}$$
+Concretely, after one iteration with a single target state in $N$ states:
 
-Each Grover iteration increases the target amplitude by approximately $\frac{2}{\sqrt{N}}$, while slightly decreasing all others.
+$$\mu = \frac{(N-1) \cdot \frac{1}{\sqrt{N}} + (-\frac{1}{\sqrt{N}})}{N} = \frac{N-2}{N\sqrt{N}}$$
+
+The target amplitude after reflection: $2\mu - \left(-\frac{1}{\sqrt{N}}\right) = \frac{2(N-2)}{N\sqrt{N}} + \frac{1}{\sqrt{N}} = \frac{3N-4}{N\sqrt{N}} \approx \frac{3}{\sqrt{N}}$
+
+The target's amplitude has roughly **tripled** after one iteration. Each subsequent iteration continues to increase it, until it reaches close to 1 at $k_{\text{opt}}$.
 
 **Circuit implementation of the Diffuser:**
 
@@ -675,47 +682,19 @@ $$k_{\text{opt}} \approx \frac{\pi}{4}\sqrt{\frac{N}{m}}$$
 
 $$k_{\text{opt}} \approx \frac{\pi}{4}\sqrt{8} \approx 0.785 \times 2.828 \approx 2.22 \quad \Rightarrow \quad k = 2$$
 
-At $k = 2$: $P = \sin^2(5\theta)$ where $\theta = \arcsin(1/\sqrt{8}) \approx 0.361$ rad, giving $P \approx \sin^2(1.807) \approx 0.972$, i.e. **~97%**. ✓
+Checking the probability at $k = 2$, with $\theta = \arcsin(1/\sqrt{8}) \approx 0.361$ rad:
 
-> **Critical point:** too few iterations means low probability (the amplitude hasn't grown enough). Too many means the probability starts dropping again (the amplitude overshoots the peak and starts decreasing). The formula gives the unique optimal stopping point. This is fundamentally different from classical search — you must know when to stop.
+$$P(2) = \sin^2\!\bigl(5\,\theta\bigr) = \sin^2(1.807) \approx \textbf{97\%} \quad \checkmark$$
 
----
-
-#### Edge Case: $n = 2$ qubits
-
-For $n = 2$, $N = 4$, $m = 1$:
-
-$$k_{\text{opt}} = \frac{\pi}{4}\sqrt{4} = \frac{\pi}{2} \approx 1.57 \quad \Rightarrow \quad \text{rounds to } k = 2$$
-
-But the **exact** probability at $k = 1$ is:
-
-$$\theta = \arcsin\!\left(\frac{1}{2}\right) = \frac{\pi}{6} \qquad P(1) = \sin^2\!\left(\frac{3\pi}{6}\right) = \sin^2\!\left(\frac{\pi}{2}\right) = 1 \quad \Rightarrow \quad \textbf{100\%}$$
-
-One iteration would be **perfect**. But the formula rounds to 2 iterations, and:
-
-$$P(2) = \sin^2\!\left(\frac{5\pi}{6}\right) = \sin^2\!\left(\pi - \frac{\pi}{6}\right) = \sin^2\!\left(\frac{\pi}{6}\right) = \frac{1}{4} = 25\%$$
-
-With $k = 2$, the target gets only **25% probability** — no better than random. This is visible in the histogram below: the distribution is nearly uniform over all four states. The approximation $k_{\text{opt}} \approx \frac{\pi}{4}\sqrt{N}$ breaks down for small $N$.
+> **Critical point:** too few iterations means low probability (the amplitude hasn't grown enough). Too many means the probability starts dropping again (the amplitude overshoots the peak and starts decreasing). The formula gives the unique optimal stopping point. This is fundamentally different from classical search — **you must know when to stop**.
 
 ---
 
 #### Results
 
-**$n = 3$ qubits, target `101`, 2 iterations:** the target dominates with ~97% of shots.
+**$n = 3$ qubits, target `101`, 2 iterations:** the target dominates with ~97% of shots — see [Example 1 in Ex04](#example-1----n3-qubits-single-target-101) for the full circuit and histogram.
 
-<p align="center">
-  <img src="srcs/imgs/ex%2004%203qubit%2C%20single%20target%20101.png" alt="Grover result — target state 101 at ~95% of 1024 shots" width="500"/>
-</p>
-
-**$n = 2$ qubits, target `11`, 2 iterations (one too many):** nearly uniform — the algorithm overshot.
-
-<p align="center">
-  <img src="srcs/imgs/ex04%20grover%20circuit%202%20qubits.png" alt="Ex04 — Grover circuit for 2 qubits" width="720"/>
-</p>
-
-<p align="center">
-  <img src="srcs/imgs/ex04%202%20qubits%20histogram.png" alt="Ex04 — 2-qubit Grover: near-uniform distribution due to iteration overshoot" width="480"/>
-</p>
+The detailed results for all three examples (single target, two targets, small register overshoot) are covered in the [Ex04 exercise section](#ex04--grovers-algorithm) below.
 
 ---
 
@@ -797,7 +776,7 @@ Comparing the two histograms side by side makes the difference clear: the simula
 <p align="center">
   <img src="srcs/imgs/ex01%20entanglement%20histogram.png" alt="Ex01 — ideal simulator: only 00 and 11" width="420"/>
   &nbsp;&nbsp;&nbsp;
-  <img src="srcs/imgs/quantum_noise_ex02.png" alt="Ex02 — real IBM hardware: 01 and 10 appear due to quantum noise" width="420"/>
+  <img src="srcs/imgs/quantum noise ex02.png" alt="Ex02 — real IBM hardware: 01 and 10 appear due to quantum noise" width="420"/>
 </p>
 <p align="center"><em>Left: ideal Aer simulator (ex01) &nbsp;—&nbsp; Right: real IBM hardware (ex02)</em></p>
 
@@ -826,6 +805,8 @@ The oracle is a black box that computes $f(x)$. Because the ancilla is in $\frac
 $$|x\rangle \;\longrightarrow\; (-1)^{f(x)}\,|x\rangle$$
 
 The value of $f(x)$ is encoded as a **phase** ($+1$ or $-1$) on each input state — not as a bit flip. This is called **phase kickback**.
+
+> **Micro-example:** say $f(x) = 1$ for a particular input $x = 5$. The oracle turns $|5\rangle$ into $(-1)^1 \cdot |5\rangle = -|5\rangle$. The state `5` is still there — but it now carries a minus sign that will determine how it interferes later. No information is "stored" in a separate output qubit; it's all in the sign.
 
 - If $f$ is constant: all phases are identical → no relative difference between input states.
 - If $f$ is balanced: half the phases are $+1$, half are $-1$ → the input states are split into two groups with opposite signs.
@@ -939,9 +920,8 @@ The target appears in ~95% of shots. The remaining ~5% are spread evenly across 
 
 <p align="center">
   <img src="srcs/imgs/ex04 exemple 1 circuit.png" alt="Grover circuit — n=3, single target 101" width="620"/>
-</p>
-<p align="center">
-  <img src="srcs/imgs/ex04 example 1 graph.png" alt="Grover histogram — n=3, target 101: ~95% of shots" width="380"/>
+  &nbsp;&nbsp;&nbsp;
+  <img src="srcs/imgs/ex04 example 1 graph.png" alt="Grover histogram — n=3, target 101: ~95% of shots" width="360"/>
 </p>
 
 ---
@@ -952,21 +932,20 @@ With 2 targets, the formula gives:
 
 $$k_{\text{opt}} = \text{round}\!\left(\frac{\pi}{4}\sqrt{\frac{8}{2}}\right) = \text{round}\!\left(\frac{\pi}{4} \cdot 2\right) = \text{round}(1.57) = 2$$
 
-But the **exact** optimal is $k = 1$. At $k = 1$ with $m = 2$ targets:
+But the **exact** optimal is $k = 1$. Here is why:
 
-$$\theta = \arcsin\!\sqrt{\frac{2}{8}} = \arcsin\!\left(\frac{1}{2}\right) = \frac{\pi}{6} \qquad P(1) = \sin^2\!\left(\frac{3\pi}{6}\right) = \sin^2\!\left(\frac{\pi}{2}\right) = 1 \quad (100\%)$$
+$$\theta = \arcsin\!\sqrt{\frac{2}{8}} = \arcsin\!\left(\frac{1}{2}\right) = \frac{\pi}{6}$$
 
-With $k = 2$ however:
+$$P(1) = \sin^2\!\left((2 \cdot 1 + 1)\,\frac{\pi}{6}\right) = \sin^2\!\left(\frac{\pi}{2}\right) = 1 \quad \Rightarrow \quad \textbf{100\%}$$
 
-$$P(2) = \sin^2\!\left(\frac{5\pi}{6}\right) = \sin^2\!\left(\frac{\pi}{6}\right) = \frac{1}{4} = 25\% \text{ per target}$$
+$$P(2) = \sin^2\!\left((2 \cdot 2 + 1)\,\frac{\pi}{6}\right) = \sin^2\!\left(\frac{5\pi}{6}\right) = \sin^2\!\left(\frac{\pi}{6}\right) = \frac{1}{4} = \textbf{25\%}$$
 
 The algorithm overshot. The histogram is nearly uniform — the amplification went past the peak and came back down, making all states equally likely again. This is the same failure mode as Example 3 for the same mathematical reason: $N/m = 4$ in both cases.
 
 <p align="center">
   <img src="srcs/imgs/ex04 example2 circuit.png" alt="Grover circuit — n=3, two targets 011 and 110" width="620"/>
-</p>
-<p align="center">
-  <img src="srcs/imgs/ex04 example 2 graph.png" alt="Grover histogram — n=3, two targets: near-uniform, algorithm overshot" width="380"/>
+  &nbsp;&nbsp;&nbsp;
+  <img src="srcs/imgs/ex04 example 2 graph.png" alt="Grover histogram — n=3, two targets: near-uniform, algorithm overshot" width="360"/>
 </p>
 
 ---
@@ -977,15 +956,14 @@ With $N = 4$ and $m = 1$:
 
 $$k_{\text{opt}} = \text{round}\!\left(\frac{\pi}{4}\sqrt{4}\right) = \text{round}\!\left(\frac{\pi}{2}\right) = \text{round}(1.57) = 2$$
 
-But the exact optimal is again $k = 1$ (probability = 100%). With $k = 2$, the probability drops to 25% — no better than guessing at random among 4 states. The histogram is uniform.
+The exact optimal is $k = 1$, which would give 100% probability (same calculation as Example 2 since $N/m = 4$ in both cases). With $k = 2$, the probability drops back to 25% — no better than guessing at random among 4 states.
 
-This is an important result: **Grover's algorithm requires a large enough search space to work well.** The approximation $k_{\text{opt}} \approx \frac{\pi}{4}\sqrt{N/m}$ assumes $N \gg m$. When $N/m$ is small (here $N/m = 4$), the rounding error in $k$ is significant relative to the period of the probability oscillation.
+This is an important result: **Grover's algorithm requires a large enough search space to work well.** The approximation $k_{\text{opt}} \approx \frac{\pi}{4}\sqrt{N/m}$ assumes $N \gg m$. When $N/m$ is small (here $N/m = 4$), the rounding error in $k$ is significant and the algorithm overshoots the amplitude peak.
 
 <p align="center">
   <img src="srcs/imgs/ex04 example 3 circuit.png" alt="Grover circuit — n=2, single target 11" width="620"/>
-</p>
-<p align="center">
-  <img src="srcs/imgs/ex04 example 3 graph.png" alt="Grover histogram — n=2, target 11: near-uniform, algorithm overshot" width="380"/>
+  &nbsp;&nbsp;&nbsp;
+  <img src="srcs/imgs/ex04 example 3 graph.png" alt="Grover histogram — n=2, target 11: near-uniform, algorithm overshot" width="360"/>
 </p>
 
 **Key code:**
