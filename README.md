@@ -3,6 +3,17 @@
 > Study guide for the **ftl_quantum** project — 42 Lyon  
 > This document covers the theoretical foundations and algorithms implemented in the exercises.
 
+### How to read this course
+
+This is a **first course** in quantum computing — no prior physics is assumed.
+
+- **Prerequisites.** Comfort with high-school algebra and vectors is enough. The little complex-number background you need is introduced [just before it is used](#prerequisite--complex-numbers-in-two-minutes).
+- **Notation.** Quantum states are written in *bra-ket* notation, e.g. `|0⟩`. It looks unusual at first but is defined from scratch in [Section 3](#3-notations); you can start reading before mastering it.
+- **Suggested path.** Read sections **1 → 6** in order — each builds on the previous one. Section **7** then maps every concept onto real, runnable code from the exercises.
+- **Reading tip.** Every formula is followed by a plain-language explanation. If a formula looks intimidating, read the sentence *after* it first, then come back.
+
+> 🧭 Look for the **✅ Key takeaways** boxes at the end of each major section — they summarise what you must remember before moving on.
+
 ---
 
 ## Table of Contents
@@ -72,6 +83,15 @@ A classical bit is like a light switch: either off (0) or on (1). A qubit, befor
 
 ### 2.2 Superposition
 
+> #### Prerequisite — complex numbers in two minutes
+>
+> A qubit's amplitudes are **complex numbers**, so here is the strict minimum you need.
+> A complex number is written $z = a + b\,i$, where $i$ is defined by $i^2 = -1$. Two features matter for us:
+> - **Modulus** $|z| = \sqrt{a^2 + b^2}$ — its "length". For a real number this is just its absolute value. **Probabilities come from the modulus squared**, $|z|^2 = a^2 + b^2$, which is always a real number $\ge 0$.
+> - **Phase** — the *direction* of $z$ in the plane, written $e^{i\varphi}$. Multiplying by $e^{i\varphi}$ rotates $z$ without changing its modulus, so it **does not change probabilities directly** — but it controls *interference* between states, which is where quantum algorithms get their power (see [Section 4.2, Z gate](#pauli-z-gate-phase-flip)).
+>
+> That's all. Whenever you see $\alpha$ or $\beta$ below, picture "an arrow with a length (modulus) and a direction (phase)".
+
 Superposition is the state a qubit is in **before** any measurement. It is not ignorance — the qubit truly does not have a defined value yet. It is a physical state in its own right.
 
 Mathematically, a qubit in superposition is written:
@@ -133,10 +153,16 @@ Quantum gates are **rotations** of this vector on the sphere:
 > **Why does the formula use $\theta/2$ instead of $\theta$?** This is a geometric subtlety: on the Bloch sphere, two opposite points represent orthogonal (completely distinct) quantum states. A full $360°$ rotation of the sphere only brings the qubit back to the same *physical* state up to a global phase — but it takes a $720°$ rotation to restore the state exactly. Dividing angles by 2 is the standard convention that keeps the parametrisation consistent.
 
 <p align="center">
-  <img src="srcs/imgs/real-Bloch-sphere-points.avif" alt="Bloch sphere with labelled axes and state vector" width="360"/>
+  <img src="srcs/imgs/svg/bloch-reference.svg" alt="Bloch sphere with labelled axes, a state vector and the angles theta and phi" width="330"/>
   &nbsp;&nbsp;&nbsp;
-  <img src="srcs/imgs/six-Bloch-sphere-points.avif" alt="Bloch sphere showing the six cardinal states" width="360"/>
+  <img src="srcs/imgs/svg/bloch-cardinal.svg" alt="Bloch sphere showing the six cardinal states 0, 1, +, -, +i, -i" width="330"/>
 </p>
+<p align="center"><em>Left: any qubit state as a point set by the angles θ and φ &nbsp;—&nbsp; Right: the six most useful states.</em></p>
+
+> **✅ Key takeaways — the qubit**
+> - A qubit is a superposition $\alpha|0\rangle + \beta|1\rangle$ with $|\alpha|^2 + |\beta|^2 = 1$; the two numbers $|\alpha|^2$ and $|\beta|^2$ are the measurement probabilities.
+> - **Measurement is irreversible**: it collapses the superposition to a single classical bit. You need **many shots** to reveal the underlying probabilities.
+> - Any single-qubit state is one **point on the Bloch sphere**; gates are **rotations** of that point.
 
 ---
 
@@ -215,9 +241,7 @@ The state space of 2 qubits has dimension $2^2 = 4$, spanned by the four basis s
 |11\rangle = \begin{pmatrix}0\\0\\0\\1\end{pmatrix}
 ```
 
-The notation $|ab\rangle$ means qubit 0 is in state $|b\rangle$ and qubit 1 is in state $|a\rangle$.
-
-> **Qiskit convention:** qubit 0 is the **rightmost** bit. So $|01\rangle$ means qubit 1 = 0, qubit 0 = 1. This is the opposite of most textbooks and can be a source of confusion.
+> **Reading multi-qubit labels (Qiskit convention).** Inside a label such as $|q_1 q_0\rangle$, the **rightmost** digit is qubit 0. For example $|01\rangle$ means **qubit 1 = 0 and qubit 0 = 1**. This *little-endian* ordering is the opposite of many textbooks — keep it in mind when reading every circuit and histogram in this document.
 
 A system of $n$ qubits can be in superposition of **all $2^n$ basis states simultaneously**. This is the source of quantum computing's potential: $n = 50$ qubits span $2^{50} \approx 10^{15}$ states at once.
 
@@ -263,9 +287,7 @@ The amplitudes are swapped, as expected for a NOT operation.
 **Qiskit:** `circuit.x(qubit)`
 
 <p align="center">
-  <img src="srcs/imgs/pauli%20x%20gate%20bloch%20sphere.jpg" alt="Pauli-X gate — full Bloch sphere with rotation vectors" width="400"/>
-  &nbsp;&nbsp;&nbsp;
-  <img src="srcs/imgs/BlochSphere_X_01(pauli%20x%20gate%20sphere).png" alt="Pauli-X gate — rotation arc from |0⟩ to |1⟩" width="290"/>
+  <img src="srcs/imgs/svg/bloch-gate-x.svg" alt="Pauli-X gate — 180 degree rotation around the x axis, taking |0⟩ to |1⟩" width="330"/>
 </p>
 
 ---
@@ -289,7 +311,7 @@ The factor $i = \sqrt{-1}$ is an imaginary unit. It introduces a phase differenc
 **Qiskit:** `circuit.y(qubit)`
 
 <p align="center">
-  <img src="srcs/imgs/BlochSphere_Y_01%20(pauli%20y%20gate%20sphere).png" alt="Pauli-Y gate — 180° rotation around the Y axis" width="290"/>
+  <img src="srcs/imgs/svg/bloch-gate-y.svg" alt="Pauli-Y gate — 180 degree rotation around the y axis" width="330"/>
 </p>
 
 ---
@@ -319,7 +341,7 @@ $$Z\,|{-}\rangle = |{+}\rangle$$
 **Qiskit:** `circuit.z(qubit)`
 
 <p align="center">
-  <img src="srcs/imgs/pauli%20z%20gate%20sphere.png" alt="Pauli-Z gate — phase flip, 180° rotation around the Z axis" width="290"/>
+  <img src="srcs/imgs/svg/bloch-gate-z.svg" alt="Pauli-Z gate — phase flip, taking |+⟩ to |−⟩ around the z axis" width="330"/>
 </p>
 
 ---
@@ -349,7 +371,7 @@ This property is at the core of Deutsch-Jozsa: applying H twice undoes the super
 **Qiskit:** `circuit.h(qubit)`
 
 <p align="center">
-  <img src="srcs/imgs/BlochSphere_H_01%20(hadamard%20gate%20sphere).png" alt="Hadamard gate — rotation arc from |0⟩ to |+⟩ on the Bloch sphere" width="290"/>
+  <img src="srcs/imgs/svg/bloch-gate-h.svg" alt="Hadamard gate — rotation from |0⟩ to |+⟩ on the Bloch sphere" width="330"/>
 </p>
 
 ---
@@ -441,6 +463,11 @@ Generalisation of CNOT to **$n$ control qubits**: the target is flipped only if 
 
 This gate is used in Grover's oracle to identify a specific computational basis state among all $2^n$ possibilities.
 
+> **✅ Key takeaways — gates**
+> - Every gate is a **unitary matrix**: reversible, and it preserves total probability.
+> - **X** flips a bit, **Z** flips a phase, **H** creates/destroys superposition, and **phase gates (S, T)** rotate by fractions of a turn around $z$.
+> - **CNOT** is the key multi-qubit gate: combined with **H** it builds **entanglement**. $\{H, T, \text{CNOT}\}$ alone can approximate *any* quantum computation.
+
 ---
 
 ## 5. Quantum Entanglement
@@ -480,6 +507,11 @@ $$|00\rangle \xrightarrow{H\text{ on q0}} \frac{1}{\sqrt{2}}(|0\rangle + |1\rang
 <p align="center">
   <img src="srcs/imgs/ex01%20entanglement%20histogram.png" alt="Entanglement histogram — only 00 and 11 appear, never 01 or 10" width="480"/>
 </p>
+
+> **✅ Key takeaways — entanglement**
+> - Entangled qubits **cannot** be described separately: the joint state does not factor into individual qubit states.
+> - The **Bell state** $\frac{1}{\sqrt{2}}(|00\rangle+|11\rangle)$ is built with just **H + CNOT**.
+> - Measuring one qubit instantly fixes the other — but this **cannot transmit information**, because you cannot choose the outcome.
 
 ---
 
@@ -692,9 +724,14 @@ $$P(2) = \sin^2\!\bigl(5\,\theta\bigr) = \sin^2(1.807) \approx \textbf{97\%} \qu
 
 #### Results
 
-**$n = 3$ qubits, target `101`, 2 iterations:** the target dominates with ~97% of shots — see [Example 1 in Ex04](#example-1----n3-qubits-single-target-101) for the full circuit and histogram.
+**$n = 3$ qubits, target `101`, 2 iterations:** the target dominates with a predicted $P(2) \approx 97\%$ (about **95%** observed over 1024 shots, due to sampling) — see [Example 1 in Ex04](#example-1----n3-qubits-single-target-101) for the full circuit and histogram.
 
 The detailed results for all three examples (single target, two targets, small register overshoot) are covered in the [Ex04 exercise section](#ex04--grovers-algorithm) below.
+
+> **✅ Key takeaways — algorithms**
+> - Both algorithms hide the answer in **phases**, then use **interference** (a final H layer, or the diffuser) to turn phases into a measurable outcome.
+> - **Deutsch-Jozsa** answers a global question in **one** oracle query — the first proof of quantum advantage.
+> - **Grover** finds a marked item in $O(\sqrt{N})$ instead of $O(N)$, but you **must stop at $k_{\text{opt}}$**: too many iterations overshoot and destroy the advantage.
 
 ---
 
@@ -916,7 +953,7 @@ where $N = 2^n$ is the total number of states and $m$ is the number of targets.
 
 $k_{\text{opt}} = \text{round}\!\left(\frac{\pi}{4}\sqrt{8}\right) = \text{round}(2.22) = 2$
 
-The target appears in ~95% of shots. The remaining ~5% are spread evenly across the other 7 states.
+The target appears in ~95% of shots (the theoretical optimum is $P(2) \approx 97\%$; the small gap is ordinary sampling noise over 1024 shots). The rest is spread evenly across the other 7 states.
 
 <p align="center">
   <img src="srcs/imgs/ex04 exemple 1 circuit.png" alt="Grover circuit — n=3, single target 101" width="620"/>

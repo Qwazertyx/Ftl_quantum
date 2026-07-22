@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 380" font-family="'Segoe UI',system-ui,sans-serif">
+  <defs>
+    <marker id="axis" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#64748b"/></marker>
+    <marker id="arc" markerWidth="9" markerHeight="9" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#2563eb"/></marker>
+  </defs>
+
+  <rect x="8" y="8" width="364" height="364" rx="16" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5"/>
+  <text x="190" y="26" text-anchor="middle" font-size="15" font-weight="600" fill="#0f172a">Hadamard &#8212; |0&#10217; &#8594; |+&#10217;</text>
+
+  <circle cx="180" cy="185" r="125" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+  <path d="M55,185 A125,62.5 0 0 1 305,185" fill="none" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 4"/>
+  <path d="M55,185 A125,62.5 0 0 0 305,185" fill="none" stroke="#94a3b8" stroke-width="1.4"/>
+
+  <line x1="180" y1="325" x2="180" y2="50" stroke="#64748b" stroke-width="1.4" marker-end="url(#axis)"/>
+  <line x1="55" y1="185" x2="322" y2="185" stroke="#64748b" stroke-width="1.4" marker-end="url(#axis)"/>
+  <line x1="180" y1="185" x2="263" y2="122" stroke="#64748b" stroke-width="1.3" stroke-dasharray="4 4"/>
+  <line x1="180" y1="185" x2="95" y2="249" stroke="#64748b" stroke-width="1.4" marker-end="url(#axis)"/>
+
+  <!-- rotation axis of H: the diagonal (x+z)/sqrt2 -->
+  <line x1="131" y1="134" x2="229" y2="236" stroke="#2563eb" stroke-width="1.6" stroke-dasharray="5 4" opacity="0.8"/>
+  <text x="230" y="252" font-size="11" fill="#2563eb">(x+z)/&#8730;2</text>
+
+  <!-- initial and final state vectors -->
+  <line x1="180" y1="185" x2="180" y2="60" stroke="#dc2626" stroke-width="2.2" marker-end="url(#vec)"/>
+  <line x1="180" y1="185" x2="111" y2="237" stroke="#dc2626" stroke-width="2.2" marker-end="url(#vec)"/>
+  <defs><marker id="vec" markerWidth="10" markerHeight="10" refX="7" refY="3.2" orient="auto"><path d="M0,0 L7,3.2 L0,6.4 Z" fill="#dc2626"/></marker></defs>
+
+  <!-- trajectory |0> -> |+> (front quarter, x-z plane) -->
+  <path d="M180,60 C150,110 111,185 111,237" fill="none" stroke="#2563eb" stroke-width="2.2" marker-end="url(#arc)"/>
+
+  <circle cx="180" cy="60"  r="4.5" fill="#dc2626" stroke="#fff" stroke-width="1.5"/>
+  <circle cx="111" cy="237" r="4.5" fill="#dc2626" stroke="#fff" stroke-width="1.5"/>
+
+  <text x="188" y="72" font-size="14" fill="#dc2626" font-weight="600">|0&#10217;</text>
+  <text x="60"  y="266" font-size="14" fill="#dc2626" font-weight="600">|+&#10217;</text>
+  <text x="180" y="345" text-anchor="middle" font-size="12" fill="#94a3b8">|1&#10217;</text>
+
+  <text x="190" y="360" text-anchor="middle" font-size="12" fill="#64748b">H : creates superposition (90&#176; about x+z)</text>
+</svg>
